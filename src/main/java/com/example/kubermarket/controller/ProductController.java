@@ -60,7 +60,7 @@ public class ProductController {
             @RequestParam(value="keyword", defaultValue = "",required = false) String keyword, //이름이나 동네로 검색
             @RequestParam(value="page", defaultValue = "1",required = false) Integer pageNum ){
         if(popular) { //인기 항목순으로 조회
-            List<ProductDto> productList = productService.getPopularProducts();
+            List<PopularProductDto> productList = productService.getPopularProducts();
             //List<ProductDto> ProductDtoList = new ArrayList<>();
 //            for (Object o : productList) {
 //                Object[] result = (Object[]) o;

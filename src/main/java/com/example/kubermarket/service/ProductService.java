@@ -1,12 +1,14 @@
 package com.example.kubermarket.service;
 
 import com.example.kubermarket.domain.*;
+import com.example.kubermarket.dto.PopularProductDto;
 import com.example.kubermarket.dto.ProductDto;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,18 +17,19 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
+@Transactional
+@RequiredArgsConstructor
 public class ProductService {
 
     public final ProductRepository productRepository;
     public final ProductImageRepository productImageRepository;
     public final CategoryRepository categoryRepository;
-    public final ChatRoomRepository chatRoomRepository;
     public final UserRepository userRepository;
 
     public List<Product> getProducts() {
@@ -35,18 +38,27 @@ public class ProductService {
     }
 
     @Transactional
-    public List<ProductDto> getPopularProducts() {
-        List<Object> objects= productRepository.findByInterestCountANDChatRoom();
-        List<ProductDto> productDtoList= new ArrayList<>();
-        for(Object object: objects){
-            Object[] result= (Object[]) object;
-            Product product= (Product) result[0];
-            log.info(String.valueOf(Integer.parseInt(String.valueOf(result[1]))));
-            productDtoList.add(this.convertEntityToDto(product));
+    public List<PopularProductDto> getPopularProducts() {
+        List<Product> productList = (List<Product>) productRepository.findAll();
+        List<PopularProductDto> productDtoList= new ArrayList<>();
+        Integer count=1;
+        for(Product product: productList){
+            //ProductId와 채팅수 가져오기
+            productDtoList.add(this.convertEntityToDto(product,count++));
         }
-        return  productDtoList;
+        productDtoList.sort((o1, o2) -> ((o2.getInterestCount()+o2.getChatCount()) - (o1.getInterestCount()+o1.getChatCount())));
 
+        return  productDtoList;
+//        List<Object> objects= productRepository.findByInterestCountANDChatRoom();
+//        List<ProductDto> productDtoList= new ArrayList<>();
+//        for(Object object: objects){
+//            Object[] result= (Object[]) object;
+//            Product product= (Product) result[0];
+//            log.info(String.valueOf(Integer.parseInt(String.valueOf(result[1]))));
+//            productDtoList.add(this.convertEntityToDto(product));
+//        }
     }
+
     @Transactional
     public  List<ProductDto> getAddressProducts(String address) {
         List<Product> products= productRepository.findByAddress(address);
@@ -78,7 +90,25 @@ public class ProductService {
                 .price(product.getPrice())
                 .interestCount(product.getInterestCount())
                 .status(product.getStatus())
+                .nickName(product.getUser().getNickName())
                 .address(product.getUser().getAddress1())
+                .categoryName(product.getCategory().getName())
+                .build();
+    }
+
+    private PopularProductDto convertEntityToDto(Product product,Integer count) {
+        return PopularProductDto.builder()
+                .id(product.getId())
+                .title(product.getTitle())
+                .content(product.getContent())
+                .createDate(product.getCreateDate())
+                .updateDate(product.getUpdateDate())
+                .price(product.getPrice())
+                .interestCount(product.getInterestCount())
+                .status(product.getStatus())
+                .address(product.getUser().getAddress1())
+                .chatCount(count)
+                .nickName(product.getUser().getNickName())
                 .categoryName(product.getCategory().getName())
                 .build();
     }
@@ -136,7 +166,6 @@ public class ProductService {
         product.updateProduct(title,content,updateDate, price,interestCount,status);
         product.setCategory(categoryRepository.findByName(categoryName).orElse(null));
         for(MultipartFile file :files) {
-            log.info(file.getOriginalFilename());
             log.info(file.getContentType());
             String filename = file.getOriginalFilename();
             String filePath = fileUrl + "\\" + filename;
