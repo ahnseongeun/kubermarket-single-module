@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,13 +19,16 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString (exclude = {"products","productReviews"})
+@ToString (exclude = {"products","productReviews","chatRooms"})
 @Table(name = "user")
-public class User {
+@IdClass(User.class)
+public class User implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    private Long BuyerId;
 
 //    @Column(updatable = false,nullable = false,unique = true)
 //    private String userId;
@@ -55,9 +59,10 @@ public class User {
     @JsonManagedReference("e")
     private List<ProductReview> productReviews = new ArrayList<>();
 
-//    @OneToMany(mappedBy = "user", fetch=FetchType.LAZY, cascade = CascadeType.ALL)
-//    @JsonManagedReference("u")
-//    private List<ChatRoom> chatRooms = new ArrayList<>();
+    @OneToMany(mappedBy = "user", fetch=FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonManagedReference("u")
+    private List<ChatRoom> chatRooms = new ArrayList<>();
+
 
 
 }

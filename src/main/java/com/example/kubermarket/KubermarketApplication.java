@@ -22,7 +22,7 @@ public class KubermarketApplication implements CommandLineRunner {
 	private final CategoryRepository categoryRepository;
 	private final ProductRepository productRepository;
 	private final ProductReviewRepository productReviewRepository;
-//	private final ChatRoomRepository chatRoomRepository;
+	private final ChatRoomRepository chatRoomRepository;
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 

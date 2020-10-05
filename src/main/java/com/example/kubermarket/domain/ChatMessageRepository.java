@@ -2,8 +2,5 @@ package com.example.kubermarket.domain;
 
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.List;
-
-public interface ChatRoomRepository extends CrudRepository<ChatRoom,Long> {
-
+public interface ChatMessageRepository extends CrudRepository<ChatMessage,Long> {
 }
