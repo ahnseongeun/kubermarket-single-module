@@ -28,8 +28,8 @@ public class ChatRoom {
 
     @ManyToOne
     @JsonBackReference("p")
-    @JoinColumn(name="product_id")
-    private Product product;
+    @JoinColumn(name="product_id_user_id")
+    private User seller;
 
     @ManyToOne
     @JsonBackReference("u")

@@ -21,7 +21,6 @@ import java.util.List;
 @AllArgsConstructor
 @ToString (exclude = {"products","productReviews","chatRooms"})
 @Table(name = "user")
-@IdClass(User.class)
 public class User implements Serializable {
 
     @Id

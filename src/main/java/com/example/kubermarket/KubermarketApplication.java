@@ -108,6 +108,12 @@ public class KubermarketApplication implements CommandLineRunner {
 				.build();
 		productReviewRepository.save(productReview1);
 
+		ChatRoom chatRoom= ChatRoom.builder()
+				.seller(product.getUser())
+				.user(user2)
+				.build();
+		chatRoomRepository.save(chatRoom);
+
 	}
 
 }
