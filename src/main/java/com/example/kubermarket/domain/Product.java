@@ -22,7 +22,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(exclude = {"user", "productImages", "productReview","category"})
-//@NamedQuery(name="Product.findByInterestCountANDChatRoom",query = "select a , a.interestCount + count(b.product) as total   from Product as a left join ChatRoom as b  on a= b.product group by a.id ORDER BY total DESC ")
 @NamedQuery(name="Product.findByAddress",query = "select a from Product as a left join User as b  on a.user= b where b.address1 = :address order by a.createDate DESC")
 @NamedQuery(name="Product.findByKeyword",query = "select a from Product as a left join User as b  on a.user= b where b.address1 like :keyword or a.title like :keyword order by a.createDate DESC")
 @Table(name = "product")

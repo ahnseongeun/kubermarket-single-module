@@ -32,7 +32,7 @@ public class LoginController {
     public LoginResponseDto create(
             @RequestBody LoginRequestDto requestDto){
         User user= loginService.authenticate(requestDto.getEmail(),requestDto.getPassword());
-        String accessToken = jwtUtil.creatToken(user.getId(), user.getNickName());
+        String accessToken = jwtUtil.creatToken(user.getNickName());
         LoginResponseDto ReceiveToken = LoginResponseDto.builder().accessToken(accessToken).build();
         log.info(ReceiveToken.getAccessToken());
         return ReceiveToken;

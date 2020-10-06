@@ -28,9 +28,9 @@ public class JwtUtil {
         log.info(String.valueOf(key));
     }
 
-    public String creatToken(Long id,String nickName){
+    public String creatToken(String nickName){
         JwtBuilder builder= Jwts.builder()
-                .claim("id",id)
+                //.claim("userId",id)
                 .claim("nickName",nickName);
         return builder.signWith(SignatureAlgorithm.HS256, key).compact();
     }

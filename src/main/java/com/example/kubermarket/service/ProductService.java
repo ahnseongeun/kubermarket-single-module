@@ -135,19 +135,21 @@ public class ProductService {
         productRepository.save(product);
 
         List<ProductImage> productImageList = new ArrayList<>();
-        for(MultipartFile file :files) {
-            log.info(file.getOriginalFilename());
-            log.info(file.getContentType());
-            String filename = file.getOriginalFilename();
-            String filePath = fileUrl + "\\" + filename;
-            file.transferTo(new File(filePath));
-            ProductImage productImage = ProductImage.builder()
-                    .fileUrl(filePath)
-                    .filename(filename)
-                    .deleteFlag(true)
-                    .product(product)
-                    .build();
-            productImageList.add(productImageRepository.save(productImage));
+        if(files!=null) {
+            for (MultipartFile file : files) {
+                log.info(file.getOriginalFilename());
+                log.info(file.getContentType());
+                String filename = file.getOriginalFilename();
+                String filePath = fileUrl + "\\" + filename;
+                file.transferTo(new File(filePath));
+                ProductImage productImage = ProductImage.builder()
+                        .fileUrl(filePath)
+                        .filename(filename)
+                        .deleteFlag(true)
+                        .product(product)
+                        .build();
+                productImageList.add(productImageRepository.save(productImage));
+            }
         }
         return product;
     }

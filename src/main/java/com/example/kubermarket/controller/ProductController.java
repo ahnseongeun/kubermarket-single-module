@@ -1,26 +1,24 @@
 package com.example.kubermarket.controller;
 
 import com.example.kubermarket.domain.Product;
-import com.example.kubermarket.domain.ProductImage;
-import com.example.kubermarket.dto.AddressProductDto;
 import com.example.kubermarket.dto.PopularProductDto;
 import com.example.kubermarket.dto.ProductDto;
+import com.example.kubermarket.service.ErrorAccess;
+import com.example.kubermarket.service.PasswordWrongException;
 import com.example.kubermarket.service.ProductService;
+import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.validation.Valid;
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -99,10 +97,14 @@ public class ProductController {
             @RequestParam("interestCount") Integer interestCount,
             @RequestParam("status") String status,
             @RequestParam("categoryName") String categoryName,
-            @RequestParam("nickName") String nickName,
-            @RequestParam(value = "files",required = false) List<MultipartFile> files
+            @RequestParam(value = "files",required = false) List<MultipartFile> files,
+            Authentication authentication
             ) throws URISyntaxException, IOException {
-
+        if(authentication==null){
+            throw new ErrorAccess();
+        }
+        Claims claims= (Claims) authentication.getPrincipal();
+        String nickName = claims.get("nickName", String.class);
         LocalDateTime createDate = LocalDateTime.now();
         LocalDateTime updateDate = LocalDateTime.now();
         Product product = productService.addProduct(title, content, createDate, updateDate, price, interestCount, status, categoryName, nickName, files);
