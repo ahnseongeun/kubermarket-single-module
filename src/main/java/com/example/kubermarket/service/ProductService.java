@@ -154,8 +154,25 @@ public class ProductService {
 
 
 
-    public Product getDetailProduct(Long id) {
-        return productRepository.findById(id).orElseThrow(); //해당 상품이 없다는 예외처리하기
+    public ProductDto getDetailProduct(Long id) {
+        Product product = productRepository.findById(id).orElse(null);
+        ProductDto productDto = ProductDto.builder()
+                .id(product.getId())
+                .title(product.getTitle())
+                .content(product.getContent())
+                .createDate(product.getCreateDate())
+                .updateDate(product.getUpdateDate())
+                .price(product.getPrice())
+                .interestCount(product.getInterestCount())
+                .status(product.getStatus())
+                .address(product.getUser().getAddress1())
+                .nickName(product.getUser().getNickName())
+                .categoryName(product.getCategory().getName())
+                .userId(product.getUser().getId())
+                .productImages(product.getProductImages())
+                .productReview(product.getProductReview())
+                .build();
+        return productDto;
         //TODO
     }
 

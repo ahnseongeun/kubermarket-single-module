@@ -1,4 +1,6 @@
 package com.example.kubermarket.dto;
+import com.example.kubermarket.domain.ProductImage;
+import com.example.kubermarket.domain.ProductReview;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,5 +25,8 @@ public class ProductDto {
     private String address;
     private String categoryName;
     private String nickName;
+    private Long userId;
+    private List<ProductImage> productImages;
+    private ProductReview productReview;
 
 }

@@ -27,14 +27,34 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    String fileUrl =  System.getProperty("user.home") + "\\files";
 
     public List<User> getUsers() {
         List<User> userList= (List<User>) userRepository.findAll();
         return userList;
     }
 
-    String fileUrl =  System.getProperty("user.home") + "\\files";
-    public User AddUser( String email, String password, String address1, String address2,
+    public User getUser(Long id) {
+        User user= userRepository.findById(id).orElse(null);
+        return user;
+    }
+
+    public User updateUser(Long id,String password,String address1,String address2,
+                           String nickName,MultipartFile profileImage) throws IOException {
+        User user= userRepository.findById(id).orElse(null);
+        String encodedPassword = passwordEncoder.encode(password);
+        String filePath = fileUrl + "\\"+ profileImage;
+        profileImage.transferTo(new File(filePath));
+        user.setPassword(encodedPassword);
+        user.setAddress1(address1);
+        user.setAddress2(address2);
+        user.setNickName(nickName);
+        user.setProfileImageUrl(filePath);
+        return userRepository.save(user);
+    }
+
+
+    public User AddUser(String email, String password, String address1, String address2,
                                      String nickName, MultipartFile userImage, LocalDateTime createDate) throws IOException, EmailExistedException {
 
         Optional<User> existed= userRepository.findBynickNameOrEmail(nickName,email);

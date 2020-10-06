@@ -45,10 +45,10 @@ public class ProductController {
 
     @ResponseBody // 일반 유저가 조회할수 있는 기능
     @RequestMapping(value = "/product/{id}",method = RequestMethod.GET)
-    public Product DetailProduct(
+    public ProductDto DetailProduct(
             @Valid @PathVariable Long id){
-        Product product= productService.getDetailProduct(id);
-        return product;
+        ProductDto productDto= productService.getDetailProduct(id);
+        return productDto;
     }
 
     @ResponseBody // 일반 유저가 조회할수 있는 기능

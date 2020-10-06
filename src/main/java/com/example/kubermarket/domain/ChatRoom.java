@@ -27,13 +27,12 @@ public class ChatRoom {
     private Long id;
 
     @ManyToOne
-    @JsonBackReference("p")
-    @JoinColumn(name="product_id_user_id")
+    @JoinColumn(name="seller_id")
     private User seller;
 
     @ManyToOne
     @JsonBackReference("u")
-    @JoinColumn(name="user_id")
+    @JoinColumn(name="buyer_id")
     private User user;
 
     @OneToMany(mappedBy = "chatRoom", fetch=FetchType.LAZY, cascade = CascadeType.ALL)

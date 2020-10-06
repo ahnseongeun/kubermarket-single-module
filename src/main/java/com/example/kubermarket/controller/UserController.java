@@ -32,6 +32,27 @@ public class UserController {
         return userList;
     }
 
+    @ResponseBody // 단일 user 정보 불러올때
+    @RequestMapping(value = "/user/{id}", method = RequestMethod.GET)
+    public User getUser(@Valid @PathVariable Long id) {
+        User user = userService.getUser(id);
+        return user;
+    }
+
+    @ResponseBody // user 정보 수정할때 
+    @RequestMapping(value = "/user/{id}", method = RequestMethod.PATCH)
+    public User updateUser(
+            @Valid
+            @PathVariable Long id,
+            @RequestParam("password") String password,
+            @RequestParam("address1") String address1,
+            @RequestParam(value = "address2",required = false) String address2,
+            @RequestParam("nickname") String nickName,
+            @RequestParam(value = "profileImage",required = false) MultipartFile profileImage
+    ) throws URISyntaxException, IOException, EmailExistedException {
+        return userService.updateUser(id,password,address1,address2,nickName,profileImage);
+    }
+
     @ResponseBody
     @RequestMapping(value = "/user",method = RequestMethod.POST)
     public User create(

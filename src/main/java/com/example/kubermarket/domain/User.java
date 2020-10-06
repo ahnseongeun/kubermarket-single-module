@@ -27,11 +27,6 @@ public class User implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long BuyerId;
-
-//    @Column(updatable = false,nullable = false,unique = true)
-//    private String userId;
-
     @Column(updatable = false,nullable = false,unique = true)
     private String email;
 
@@ -61,6 +56,7 @@ public class User implements Serializable {
     @OneToMany(mappedBy = "user", fetch=FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonManagedReference("u")
     private List<ChatRoom> chatRooms = new ArrayList<>();
+
 
 
 
