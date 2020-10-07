@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -156,6 +157,7 @@ public class ProductService {
 
 
 
+    @Cacheable(key = "#id", value = "getDetailProduct")
     public ProductDto getDetailProduct(Long id) {
         Product product = productRepository.findById(id).orElse(null);
         ProductDto productDto = ProductDto.builder()
