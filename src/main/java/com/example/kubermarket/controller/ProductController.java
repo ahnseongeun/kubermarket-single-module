@@ -123,9 +123,14 @@ public class ProductController {
                          @RequestParam("interestCount") Integer interestCount,
                          @RequestParam("status") String status,
                          @RequestParam("categoryName") String categoryName,
-                         @RequestParam("nickName") String nickName,
                          @RequestParam(value = "files",required = false) List<MultipartFile> files
+                         ,Authentication authentication
     ) throws URISyntaxException, IOException {
+        if(authentication==null){
+            throw new ErrorAccess();
+        }
+        Claims claims= (Claims) authentication.getPrincipal();
+        String nickName = claims.get("nickName", String.class);
         LocalDateTime updateDate = LocalDateTime.now();
         Product product = productService.updateProduct(id,title, content,updateDate,price,interestCount,status,
                                                         categoryName,nickName,files);
@@ -135,8 +140,13 @@ public class ProductController {
     @ResponseBody
     @RequestMapping(value = "/product/{id}",method = RequestMethod.DELETE)
     public String delete(
-            @PathVariable("id") Long id
+            @PathVariable("id") Long id,Authentication authentication
     ) throws URISyntaxException {
+        if(authentication==null){
+            throw new ErrorAccess();
+        }
+//        Claims claims= (Claims) authentication.getPrincipal();
+//        String nickName = claims.get("nickName", String.class);
        productService.deleteProduct(id);
         return "{Product 삭제완료}";
     }
@@ -144,8 +154,14 @@ public class ProductController {
     @ResponseBody
     @RequestMapping(value = "/productImage/{imageId}",method = RequestMethod.DELETE)
     public String deleteImage(
-            @PathVariable("imageId") Long imageId
+            @PathVariable("imageId") Long imageId,
+            Authentication authentication
     ) throws URISyntaxException {
+        if(authentication==null){
+            throw new ErrorAccess();
+        }
+        Claims claims= (Claims) authentication.getPrincipal();
+        String nickName = claims.get("nickName", String.class);
         productService.deleteImage(imageId);
         return "{ProductImage 삭제완료}";
     }

@@ -1,8 +1,6 @@
 package com.example.kubermarket.service;
 
-import com.example.kubermarket.domain.ProductImage;
-import com.example.kubermarket.domain.User;
-import com.example.kubermarket.domain.UserRepository;
+import com.example.kubermarket.domain.*;
 import com.sun.xml.bind.v2.runtime.output.Encoded;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +23,9 @@ import java.util.Optional;
 @Transactional
 public class UserService {
 
+    private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
+    private final ProductRepository productRepository;
     private final PasswordEncoder passwordEncoder;
     String fileUrl =  System.getProperty("user.home") + "\\files";
 
@@ -75,5 +75,11 @@ public class UserService {
                 .createDate(createDate)
                 .build();
        return userRepository.save(user);
+    }
+
+    public void deleteUser(Long id) {
+        //Product product = productRepository.findById(id).orElse(null);
+        //chatRoomRepository.deleteById(product.getUser().getId());
+        userRepository.deleteById(id);
     }
 }

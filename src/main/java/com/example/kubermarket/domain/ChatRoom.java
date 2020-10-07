@@ -26,9 +26,14 @@ public class ChatRoom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+//    @ManyToOne
+//    @JoinColumn(name="seller_id")
+//    private User seller;
+
     @ManyToOne
+    @JsonBackReference("p")
     @JoinColumn(name="seller_id")
-    private User seller;
+    private Product product;
 
     @ManyToOne
     @JsonBackReference("u")

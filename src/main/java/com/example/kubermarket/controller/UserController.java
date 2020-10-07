@@ -2,8 +2,11 @@ package com.example.kubermarket.controller;
 
 import com.example.kubermarket.domain.User;
 import com.example.kubermarket.service.EmailExistedException;
+import com.example.kubermarket.service.ErrorAccess;
 import com.example.kubermarket.service.UserService;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -62,10 +65,30 @@ public class UserController {
             @RequestParam("password") String password,
             @RequestParam("address1") String address1,
             @RequestParam(value = "address2",required = false) String address2,
-            @RequestParam("nickname") String nickName,
             @RequestParam(value = "profileImage",required = false) MultipartFile profileImage
+            , Authentication authentication
     ) throws URISyntaxException, IOException, EmailExistedException {
+        if(authentication==null){
+            throw new ErrorAccess();
+        }
+        Claims claims= (Claims) authentication.getPrincipal();
+        String nickName = claims.get("nickName", String.class);
         return userService.updateUser(id,password,address1,address2,nickName,profileImage);
     }
 
+    @ResponseBody // user 정보 수정할때
+    @RequestMapping(value = "/user/{id}", method = RequestMethod.DELETE)
+    public String deleteUser(
+            @Valid
+            @PathVariable Long id
+            ,Authentication authentication
+    ) throws URISyntaxException, IOException, EmailExistedException {
+        if(authentication==null){
+            throw new ErrorAccess();
+        }
+        Claims claims= (Claims) authentication.getPrincipal();
+        String nickName = claims.get("nickName", String.class);
+        userService.deleteUser(id);
+        return "{삭제완료}";
+    }
 }

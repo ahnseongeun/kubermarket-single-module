@@ -109,7 +109,7 @@ public class KubermarketApplication implements CommandLineRunner {
 		productReviewRepository.save(productReview1);
 
 		ChatRoom chatRoom= ChatRoom.builder()
-				.seller(product.getUser())
+				.product(product)
 				.user(user2)
 				.build();
 		chatRoomRepository.save(chatRoom);

@@ -56,9 +56,9 @@ public class Product {
     @JsonManagedReference("b")
     private ProductReview productReview;
 
-//    @OneToMany(mappedBy = "product", fetch=FetchType.LAZY, cascade = CascadeType.ALL)
-//    @JsonManagedReference("p")
-//    private List<ChatRoom> chatRooms = new ArrayList<>();
+    @OneToMany(mappedBy = "product", fetch=FetchType.LAZY, cascade = CascadeType.ALL)
+    @JsonManagedReference("p")
+    private List<ChatRoom> chatRooms = new ArrayList<>();
 
     @ManyToOne
     @JsonBackReference("c")
