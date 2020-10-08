@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,6 +29,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProductService {
 
+    private final RedisTemplate<String, Object> redisTemplate;
     public final ProductRepository productRepository;
     public final ProductImageRepository productImageRepository;
     public final CategoryRepository categoryRepository;
@@ -157,7 +159,7 @@ public class ProductService {
 
 
 
-    @Cacheable(key = "#id", value = "getDetailProduct")
+    @Cacheable(key = "#id", value = "test")
     public ProductDto getDetailProduct(Long id) {
         Product product = productRepository.findById(id).orElse(null);
         ProductDto productDto = ProductDto.builder()
