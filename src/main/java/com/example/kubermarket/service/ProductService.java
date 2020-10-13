@@ -159,9 +159,11 @@ public class ProductService {
 
 
 
-    @Cacheable(key = "#id", value = "test")
+
     public ProductDto getDetailProduct(Long id) {
         Product product = productRepository.findById(id).orElse(null);
+        //log.info(String.valueOf(product));
+        log.info("pass");
         ProductDto productDto = ProductDto.builder()
                 .id(product.getId())
                 .title(product.getTitle())
@@ -178,6 +180,8 @@ public class ProductService {
                 .productImages(product.getProductImages())
                 .productReview(product.getProductReview())
                 .build();
+        //log.info(String.valueOf(productDto));
+        log.info("pass2");
         return productDto;
         //TODO
     }

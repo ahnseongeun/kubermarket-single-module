@@ -1,6 +1,9 @@
 package com.example.kubermarket.dto;
 import com.example.kubermarket.domain.ProductImage;
 import com.example.kubermarket.domain.ProductReview;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +15,7 @@ import java.util.List;
 
 @Getter
 @Builder
+@AllArgsConstructor
 public class ProductDto {
 
     private Long id;
@@ -28,5 +32,37 @@ public class ProductDto {
     private Long userId;
     private List<ProductImage> productImages;
     private ProductReview productReview;
+
+//    @JsonCreator
+//    @Builder
+//    public ProductDto(
+//            @JsonProperty("id") Long id,
+//            @JsonProperty("title") String title,
+//            @JsonProperty("content") String content,
+//            @JsonProperty("createDate") LocalDateTime createDate,
+//            @JsonProperty("updateDate") LocalDateTime updateDate,
+//            @JsonProperty("price") Integer price,
+//            @JsonProperty("interestCount") Integer interestCount,
+//            @JsonProperty("status") String status,
+//            @JsonProperty("address") String address,
+//            @JsonProperty("categoryName") String categoryName,
+//            @JsonProperty("userId") Long userId,
+//            @JsonProperty("productImages") List<ProductImage> productImages,
+//            @JsonProperty("productReview") ProductReview productReview
+//    ){
+//        this.id=id;
+//        this.title=title;
+//        this.content=content;
+//        this.createDate=createDate;
+//        this.updateDate=updateDate;
+//        this.price=price;
+//        this.interestCount=interestCount;
+//        this.status=status;
+//        this.address=address;
+//        this.categoryName=categoryName;
+//        this.userId=userId;
+//        this.productImages=productImages;
+//        this.productReview=productReview;
+//    }
 
 }

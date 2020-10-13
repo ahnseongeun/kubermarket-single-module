@@ -9,6 +9,8 @@ import com.example.kubermarket.service.ProductService;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
@@ -24,13 +27,15 @@ import java.util.List;
 @Slf4j
 @Controller
 @RequestMapping(value = "/api")
-public class ProductController {
+public class ProductController implements Serializable {
 
     public final ProductService productService;
+    public final CacheManager cacheManager;
 
     @Autowired
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, CacheManager cacheManager) {
         this.productService = productService;
+        this.cacheManager=cacheManager;
     }
 
     @ResponseBody //모든 상품을 조회할수 있는 관리자 기능
@@ -42,10 +47,12 @@ public class ProductController {
     }
 
     @ResponseBody // 일반 유저가 조회할수 있는 기능
+    @Cacheable(key = "#id",value = "test",cacheManager = "CacheManager")
     @RequestMapping(value = "/product/{id}",method = RequestMethod.GET)
     public ProductDto DetailProduct(
             @Valid @PathVariable Long id){
         ProductDto productDto= productService.getDetailProduct(id);
+        log.info(String.valueOf(productDto));
         return productDto;
     }
 
