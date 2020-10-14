@@ -9,6 +9,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.key.ZoneIdKeyDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.*;
+import org.hibernate.annotations.Proxy;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Serializable;
@@ -21,6 +22,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Proxy(lazy = false)
 public class ProductDto implements Serializable {
 
     private Long id;

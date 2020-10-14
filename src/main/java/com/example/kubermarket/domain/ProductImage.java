@@ -17,6 +17,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @ToString(exclude = {"product"})
 @Table(name = "productImage")
+@Proxy(lazy = false)
 public class ProductImage {
 
     @Id

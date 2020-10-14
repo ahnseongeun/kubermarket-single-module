@@ -25,7 +25,6 @@ import java.util.List;
 
 @Slf4j
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class ProductService {
 
@@ -84,7 +83,8 @@ public class ProductService {
     }
 
     private ProductDto convertEntityToDto(Product product) {
-        return ProductDto.builder()
+        ProductDto productDto= new ProductDto();
+        return productDto.builder()
                 .id(product.getId())
                 .title(product.getTitle())
                 .content(product.getContent())
@@ -158,10 +158,16 @@ public class ProductService {
     }
 
 
-
-    //@Cacheable(key = "#id",value = "test",cacheManager = "CacheManager")
+    @Cacheable(key = "#id",value = "test",cacheManager = "CacheManager")
     public ProductDto getDetailProduct(Long id) {
         Product product = productRepository.findById(id).orElse(null);
+        //캐시를 적용하면 트랜잭션때문에 얕은 복사를 할 경우에 DB에서 참조된 값을 가져오지 못하기 때문에
+        //"LazyInitializationException: could not initialize proxy - no Session" 에러가 난다.
+        // 그래서 리스트를 새로만들어 하나하나 넣어주는 깊은 복사를 해서 처리 해줘야 한다.
+        List<ProductImage> productImageList = new ArrayList<>();
+        for(ProductImage productImage: product.getProductImages()){
+            productImageList.add(productImage);
+        }
         //log.info(String.valueOf(product));
         log.info("pass");
         ProductDto productDto = ProductDto.builder()
@@ -177,7 +183,7 @@ public class ProductService {
                 .nickName(product.getUser().getNickName())
                 .categoryName(product.getCategory().getName())
                 .userId(product.getUser().getId())
-                .productImages(product.getProductImages())
+                .productImages(productImageList)
                 .productReview(product.getProductReview())
                 .build();
         //log.info(String.valueOf(productDto));

@@ -30,7 +30,6 @@ import java.util.List;
 @ToString(exclude = {"user", "productImages", "productReview","category"})
 @NamedQuery(name="Product.findByAddress",query = "select a from Product as a left join User as b  on a.user= b where b.address1 = :address order by a.createDate DESC")
 @NamedQuery(name="Product.findByKeyword",query = "select a from Product as a left join User as b  on a.user= b where b.address1 like :keyword or a.title like :keyword order by a.createDate DESC")
-@Table(name = "product")
 public class Product implements Serializable {
 
     @Id
@@ -58,7 +57,7 @@ public class Product implements Serializable {
 
     private Integer interestCount;
 
-    @OneToMany(mappedBy = "product", fetch=FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", fetch=FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference("a")
     private List<ProductImage> productImages = new ArrayList<>();
 
