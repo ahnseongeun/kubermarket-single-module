@@ -158,12 +158,15 @@ public class ProductService {
     }
 
 
-    @Cacheable(key = "#id",value = "test",cacheManager = "CacheManager")
+    @Cacheable(key = "#id",value = "DetailProduct",cacheManager = "CacheManager")
     public ProductDto getDetailProduct(Long id) {
         Product product = productRepository.findById(id).orElse(null);
         //캐시를 적용하면 트랜잭션때문에 얕은 복사를 할 경우에 DB에서 참조된 값을 가져오지 못하기 때문에
         //"LazyInitializationException: could not initialize proxy - no Session" 에러가 난다.
         // 그래서 리스트를 새로만들어 하나하나 넣어주는 깊은 복사를 해서 처리 해줘야 한다.
+        //JPA에서 Lazy Evaluation은 값은 지금당장 필요없고, 레퍼런스만 리턴해도 될 때 사용합니다.
+        //Lazy Evaluation의 결과 나중에 값을 가져올 수 있는 프록시 객체가 리턴됩니다.
+        //프록시 객체는 영속성 컨텍스트 안에서만 동작합니다.
         List<ProductImage> productImageList = new ArrayList<>();
         for(ProductImage productImage: product.getProductImages()){
             productImageList.add(productImage);

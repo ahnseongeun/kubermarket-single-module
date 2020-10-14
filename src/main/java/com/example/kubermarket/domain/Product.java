@@ -57,7 +57,7 @@ public class Product implements Serializable {
 
     private Integer interestCount;
 
-    @OneToMany(mappedBy = "product", fetch=FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "product", fetch=FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonManagedReference("a")
     private List<ProductImage> productImages = new ArrayList<>();
 
