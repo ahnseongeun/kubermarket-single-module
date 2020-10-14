@@ -47,11 +47,12 @@ public class ProductController implements Serializable {
     }
 
     @ResponseBody // 일반 유저가 조회할수 있는 기능
-    @Cacheable(key = "#id",value = "test",cacheManager = "CacheManager")
     @RequestMapping(value = "/product/{id}",method = RequestMethod.GET)
+    @Cacheable(key = "#id",value = "test",cacheManager = "CacheManager")
     public ProductDto DetailProduct(
             @Valid @PathVariable Long id){
         ProductDto productDto= productService.getDetailProduct(id);
+        log.info("test");
         log.info(String.valueOf(productDto));
         return productDto;
     }

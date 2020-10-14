@@ -159,7 +159,7 @@ public class ProductService {
 
 
 
-
+    //@Cacheable(key = "#id",value = "test",cacheManager = "CacheManager")
     public ProductDto getDetailProduct(Long id) {
         Product product = productRepository.findById(id).orElse(null);
         //log.info(String.valueOf(product));

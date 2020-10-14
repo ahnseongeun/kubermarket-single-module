@@ -2,6 +2,10 @@ package com.example.kubermarket.domain;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import lombok.*;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.CreationTimestamp;
@@ -20,7 +24,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @ToString(exclude = {"user","product"})
 @Table(name = "productReview")
-//@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class)
 public class ProductReview {
 
     @Id
@@ -48,8 +51,12 @@ public class ProductReview {
 
     @NotNull
     @CreationTimestamp
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime createDate;
 
     @UpdateTimestamp
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime updateDate;
 }
