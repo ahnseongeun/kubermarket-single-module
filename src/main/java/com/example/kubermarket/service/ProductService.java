@@ -34,12 +34,13 @@ public class ProductService {
     public final CategoryRepository categoryRepository;
     public final UserRepository userRepository;
 
+    @Cacheable(key = "#id",value = "Products",cacheManager = "CacheManager")
     public List<Product> getProducts() {
         List<Product> products = (List<Product>) productRepository.findAll();
         return  products;
     }
 
-    @Transactional
+    //@Cacheable(key = "#id",value = "PopularProduct",cacheManager = "CacheManager")
     public List<PopularProductDto> getPopularProducts() {
         List<Product> productList = (List<Product>) productRepository.findAll();
         List<PopularProductDto> productDtoList= new ArrayList<>();
@@ -61,7 +62,7 @@ public class ProductService {
 //        }
     }
 
-    @Transactional
+    @Cacheable(key = "#address",value = "AddressProduct",cacheManager = "CacheManager")
     public  List<ProductDto> getAddressProducts(String address) {
         List<Product> products= productRepository.findByAddress(address);
         List<ProductDto> productDtoList= new ArrayList<>();
@@ -71,8 +72,7 @@ public class ProductService {
         return  productDtoList;
     }
 
-
-    @Transactional
+    @Cacheable(key = "#keyword",value = "KeywordProduct",cacheManager = "CacheManager")
     public List<ProductDto> getKeywordProducts(String keyword) {
         List<Product> products = productRepository.findByKeyword('%'+keyword+'%');
         List<ProductDto> productDtoList= new ArrayList<>();
@@ -117,6 +117,7 @@ public class ProductService {
     }
 
     String fileUrl =  System.getProperty("user.home") + "\\files";
+    @Transactional
     public Product addProduct(String title, String content, LocalDateTime createDate, LocalDateTime updateDate,
                               Integer price, Integer interestCount, String status, String categoryName, String nickName, List<MultipartFile> files) throws IOException {
 
@@ -195,6 +196,7 @@ public class ProductService {
         //TODO
     }
 
+    @Transactional
     public Product updateProduct(Long id,String title, String content, LocalDateTime updateDate,
                                  Integer price, Integer interestCount, String status,String categoryName,String nickName,
                                 List<MultipartFile> files) throws IOException {
@@ -218,11 +220,12 @@ public class ProductService {
         return product;
     }
 
-
+    @Transactional
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
     }
 
+    @Transactional
     public void deleteImage(Long imageId) {
         ProductImage productImage= productImageRepository.findById(imageId).orElse(null);
         //productImage.setDeleteFlag(false);

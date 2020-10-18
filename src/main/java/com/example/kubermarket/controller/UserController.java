@@ -36,9 +36,16 @@ public class UserController {
     }
 
     @ResponseBody // 단일 user 정보 불러올때
-    @RequestMapping(value = "/user/{id}", method = RequestMethod.GET)
-    public User getUser(@Valid @PathVariable Long id) {
-        User user = userService.getUser(id);
+    @RequestMapping(value = "/user", method = RequestMethod.GET)
+    public User getUser(
+                        //@Valid @PathVariable Long id,
+                        Authentication authentication) {
+        if(authentication==null){
+            throw new ErrorAccess();
+        }
+        Claims claims= (Claims) authentication.getPrincipal();
+        String nickName = claims.get("nickName", String.class);
+        User user = userService.getUser(nickName);
         return user;
     }
 

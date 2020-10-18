@@ -5,6 +5,7 @@ import com.sun.xml.bind.v2.runtime.output.Encoded;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,11 +36,46 @@ public class UserService {
         return userList;
     }
 
-    public User getUser(Long id) {
-        User user= userRepository.findById(id).orElse(null);
-        return user;
+    @Cacheable(key = "#nickname",value = "user",cacheManager = "CacheManager")
+    public User getUser(String nickname) {
+        User user= userRepository.findByNickName(nickname);
+        String imageUrl= user.getProfileImageUrl();
+        List<Product> products = new ArrayList<>();
+        for(Product product: user.getProducts()){
+            List<ProductImage> productImages=new ArrayList<>();
+            for(ProductImage productImage:product.getProductImages()) {
+                productImages.add(productImage);
+            }
+            product.setProductImages(productImages);
+            products.add(product);
+        }
+        List<ProductReview> productReviews = new ArrayList<>();
+        for(ProductReview productReview: user.getProductReviews()){
+            productReviews.add(productReview);
+        }
+        List<ChatRoom> chatRooms = new ArrayList<>();
+        for(ChatRoom chatRoom: user.getChatRooms()){
+            chatRooms.add(chatRoom);
+        }
+        User newUser= User.builder()
+                .id(user.getId())
+                .nickName(user.getNickName())
+                .address1(user.getAddress1())
+                .address2(user.getAddress2())
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .createDate(user.getCreateDate())
+                .products(products)
+                .profileImageUrl(imageUrl)
+                .chatRooms(chatRooms)
+                .productReviews(productReviews)
+                .build();
+
+        user.setProducts(products);
+        return newUser;
     }
 
+    @Transactional
     public User updateUser(Long id,String password,String address1,String address2,
                            String nickName,MultipartFile profileImage) throws IOException {
         User user= userRepository.findById(id).orElse(null);
@@ -53,7 +90,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-
+    @Transactional
     public User AddUser(String email, String password, String address1, String address2,
                                      String nickName, MultipartFile userImage, LocalDateTime createDate) throws IOException, EmailExistedException {
 
@@ -77,6 +114,7 @@ public class UserService {
        return userRepository.save(user);
     }
 
+    @Transactional
     public void deleteUser(Long id) {
         //Product product = productRepository.findById(id).orElse(null);
         //chatRoomRepository.deleteById(product.getUser().getId());
