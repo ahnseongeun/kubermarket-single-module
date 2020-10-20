@@ -59,9 +59,9 @@ public class ProductController implements Serializable {
     @ResponseBody // 일반 유저가 조회할수 있는 기능
     @RequestMapping(value = "/products",method = RequestMethod.GET)
     public List<? extends Object> productList(
-            @RequestParam(value="popular", defaultValue = "true",required = false) boolean popular, //interest_count와 chat_count를 합산해서 보여준다.
-            @RequestParam(value="address", defaultValue = "false",required = false) boolean address, //address와 registerDate를 조합해서 보여준다.
-            @RequestParam(value="requestaddress", defaultValue = "songpa",required = false) String requestaddress, //address와 registerDate를 조합해서 보여준다.
+            @RequestParam(value="popular", defaultValue = "false",required = false) boolean popular, //interest_count와 chat_count를 합산해서 보여준다.
+            //@RequestParam(value="address", defaultValue = "false",required = false) boolean address, //address와 registerDate를 조합해서 보여준다.
+            @RequestParam(value="address", defaultValue = "",required = false) String address, //address와 registerDate를 조합해서 보여준다.
             @RequestParam(value="keyword", defaultValue = "",required = false) String keyword, //이름이나 동네로 검색
             @RequestParam(value="page", defaultValue = "1",required = false) Integer pageNum ){
         if(popular) { //인기 항목순으로 조회
@@ -74,8 +74,8 @@ public class ProductController implements Serializable {
 //                popularProductDtoList.add(popularProductDto);
 //            }
             return  productList;
-        }else if(address){ //주소+최신으로 조회
-            List<ProductDto>  productDtoList  = productService.getAddressProducts(requestaddress);
+        }else if(!address.equals("")){ //주소+최신으로 조회
+            List<ProductDto>  productDtoList  = productService.getAddressProducts(address);
            // List<AddressProductDto> addressProductDtoList = new ArrayList<>();
 //            for(Object o : productList){
 //                Object[] result= (Object[]) o;
@@ -87,7 +87,7 @@ public class ProductController implements Serializable {
 //            }
             return productDtoList;
         }else{ //키워드로 조회
-
+            log.info(keyword);
             List<ProductDto>  productDtoList = productService.getKeywordProducts(keyword);
             return productDtoList;
         }

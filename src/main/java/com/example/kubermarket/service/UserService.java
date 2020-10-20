@@ -36,7 +36,7 @@ public class UserService {
         return userList;
     }
 
-    @Cacheable(key = "#nickname",value = "user",cacheManager = "CacheManager")
+    //@Cacheable(key = "#nickname",value = "user",cacheManager = "CacheManager")
     public User getUser(String nickname) {
         User user= userRepository.findByNickName(nickname);
         String imageUrl= user.getProfileImageUrl();

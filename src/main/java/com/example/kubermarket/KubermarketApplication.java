@@ -89,6 +89,19 @@ public class KubermarketApplication implements CommandLineRunner {
 		product2.setUser(user2);
 		productRepository.save(product2);
 
+		for(int i=3;i<50;i++){
+			Product product3=new Product();
+			product3.setTitle("test"+i);
+			product3.setPrice(i*1000);
+			product3.setContent("test"+i);
+			product3.setCreateDate(LocalDateTime.now());
+			product3.setInterestCount(i+20);
+			product3.setStatus("sales");
+			product3.setCategory(first);
+			product3.setUser(user1);
+			productRepository.save(product3);
+		}
+
 
 		Category category = categoryRepository.findById(1L).orElse(null);
 		category.updateInfomation("sports");

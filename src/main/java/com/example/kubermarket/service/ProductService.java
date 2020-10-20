@@ -9,6 +9,9 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -74,7 +77,9 @@ public class ProductService {
 
     @Cacheable(key = "#keyword",value = "KeywordProduct",cacheManager = "CacheManager")
     public List<ProductDto> getKeywordProducts(String keyword) {
-        List<Product> products = productRepository.findByKeyword('%'+keyword+'%');
+        //JPA에서 limit을 사용하는 대신에 pageRequest를 사용해야 한다.
+        Pageable pageRequest = PageRequest.of(0,5);
+        Page<Product> products= productRepository.findByKeyword('%'+keyword+'%',pageRequest);
         List<ProductDto> productDtoList= new ArrayList<>();
         for(Product product: products){
             productDtoList.add(this.convertEntityToDto(product));
