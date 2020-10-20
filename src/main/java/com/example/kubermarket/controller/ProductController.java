@@ -65,7 +65,7 @@ public class ProductController implements Serializable {
             @RequestParam(value="keyword", defaultValue = "",required = false) String keyword, //이름이나 동네로 검색
             @RequestParam(value="page", defaultValue = "1",required = false) Integer pageNum ){
         if(popular) { //인기 항목순으로 조회
-            List<PopularProductDto> productList = productService.getPopularProducts();
+            List<PopularProductDto> productList = productService.getPopularProducts(pageNum);
             //List<ProductDto> ProductDtoList = new ArrayList<>();
 //            for (Object o : productList) {
 //                Object[] result = (Object[]) o;
@@ -75,7 +75,7 @@ public class ProductController implements Serializable {
 //            }
             return  productList;
         }else if(!address.equals("")){ //주소+최신으로 조회
-            List<ProductDto>  productDtoList  = productService.getAddressProducts(address);
+            List<ProductDto>  productDtoList  = productService.getAddressProducts(address,pageNum);
            // List<AddressProductDto> addressProductDtoList = new ArrayList<>();
 //            for(Object o : productList){
 //                Object[] result= (Object[]) o;
@@ -88,7 +88,7 @@ public class ProductController implements Serializable {
             return productDtoList;
         }else{ //키워드로 조회
             log.info(keyword);
-            List<ProductDto>  productDtoList = productService.getKeywordProducts(keyword);
+            List<ProductDto>  productDtoList = productService.getKeywordProducts(keyword,pageNum);
             return productDtoList;
         }
 

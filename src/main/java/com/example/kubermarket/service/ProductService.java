@@ -44,15 +44,16 @@ public class ProductService {
     }
 
     //@Cacheable(key = "#id",value = "PopularProduct",cacheManager = "CacheManager")
-    public List<PopularProductDto> getPopularProducts() {
-        List<Product> productList = (List<Product>) productRepository.findAll();
+    public List<PopularProductDto> getPopularProducts(Integer pageNum) {
+        Pageable pageRequest = PageRequest.of(0,5*pageNum);
+        Page<Product> productList = productRepository.findByPopular(pageRequest);
         List<PopularProductDto> productDtoList= new ArrayList<>();
-        Integer count=1;
+        Integer count=0;
         for(Product product: productList){
             //ProductId와 채팅수 가져오기
-            productDtoList.add(this.convertEntityToDto(product,count++));
+            productDtoList.add(this.convertEntityToDto(product,count+=10));
         }
-        productDtoList.sort((o1, o2) -> ((o2.getInterestCount()+o2.getChatCount()) - (o1.getInterestCount()+o1.getChatCount())));
+        //productDtoList.sort((o1, o2) -> ((o2.getInterestCount()+o2.getChatCount()) - (o1.getInterestCount()+o1.getChatCount())));
 
         return  productDtoList;
 //        List<Object> objects= productRepository.findByInterestCountANDChatRoom();
@@ -65,9 +66,10 @@ public class ProductService {
 //        }
     }
 
-    @Cacheable(key = "#address",value = "AddressProduct",cacheManager = "CacheManager")
-    public  List<ProductDto> getAddressProducts(String address) {
-        List<Product> products= productRepository.findByAddress(address);
+    @Cacheable(key = "#address.concat(#pageNum)",value = "AddressProduct",cacheManager = "CacheManager")
+    public  List<ProductDto> getAddressProducts(String address,Integer pageNum) {
+        Pageable pageRequest = PageRequest.of(0,5*pageNum);
+        Page<Product> products= productRepository.findByAddress(address,pageRequest);
         List<ProductDto> productDtoList= new ArrayList<>();
         for(Product product: products){
             productDtoList.add(this.convertEntityToDto(product));
@@ -75,10 +77,10 @@ public class ProductService {
         return  productDtoList;
     }
 
-    @Cacheable(key = "#keyword",value = "KeywordProduct",cacheManager = "CacheManager")
-    public List<ProductDto> getKeywordProducts(String keyword) {
+    @Cacheable(key = "#keyword.concat(#pageNum)",value = "KeywordProduct",cacheManager = "CacheManager")
+    public List<ProductDto> getKeywordProducts(String keyword,Integer pageNum) {
         //JPA에서 limit을 사용하는 대신에 pageRequest를 사용해야 한다.
-        Pageable pageRequest = PageRequest.of(0,5);
+        Pageable pageRequest = PageRequest.of(0,5*pageNum);
         Page<Product> products= productRepository.findByKeyword('%'+keyword+'%',pageRequest);
         List<ProductDto> productDtoList= new ArrayList<>();
         for(Product product: products){
