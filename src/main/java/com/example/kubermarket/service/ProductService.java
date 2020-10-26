@@ -36,14 +36,14 @@ public class ProductService {
     public final ProductImageRepository productImageRepository;
     public final CategoryRepository categoryRepository;
     public final UserRepository userRepository;
+    String fileUrl =  System.getProperty("user.home") + "\\files";
 
-    @Cacheable(key = "#id",value = "Products",cacheManager = "CacheManager")
     public List<Product> getProducts() {
         List<Product> products = (List<Product>) productRepository.findAll();
         return  products;
     }
 
-    //@Cacheable(key = "#id",value = "PopularProduct",cacheManager = "CacheManager")
+    @Cacheable(key = "#pageNum",value = "PopularProduct",cacheManager = "CacheManager")
     public List<PopularProductDto> getPopularProducts(Integer pageNum) {
         Pageable pageRequest = PageRequest.of(0,5*pageNum);
         Page<Product> productList = productRepository.findByPopular(pageRequest);
@@ -64,6 +64,16 @@ public class ProductService {
 //            log.info(String.valueOf(Integer.parseInt(String.valueOf(result[1]))));
 //            productDtoList.add(this.convertEntityToDto(product));
 //        }
+    }
+    @Cacheable(key = "#category.concat(#pageNum)",value = "CategoryProduct",cacheManager = "CacheManager")
+    public List<ProductDto> getCategoryProducts(String category, Integer pageNum) {
+        Pageable pageRequest = PageRequest.of(0,5*pageNum);
+        Page<Product> products= productRepository.findByCategory(category,pageRequest);
+        List<ProductDto> productDtoList= new ArrayList<>();
+        for(Product product: products){
+            productDtoList.add(this.convertEntityToDto(product));
+        }
+        return  productDtoList;
     }
 
     @Cacheable(key = "#address.concat(#pageNum)",value = "AddressProduct",cacheManager = "CacheManager")
@@ -105,7 +115,6 @@ public class ProductService {
                 .categoryName(product.getCategory().getName())
                 .build();
     }
-
     private PopularProductDto convertEntityToDto(Product product,Integer count) {
         return PopularProductDto.builder()
                 .id(product.getId())
@@ -123,7 +132,6 @@ public class ProductService {
                 .build();
     }
 
-    String fileUrl =  System.getProperty("user.home") + "\\files";
     @Transactional
     public Product addProduct(String title, String content, LocalDateTime createDate, LocalDateTime updateDate,
                               Integer price, Integer interestCount, String status, String categoryName, String nickName, List<MultipartFile> files) throws IOException {
@@ -240,6 +248,5 @@ public class ProductService {
         productImageRepository.deleteById(imageId);
 
     }
-
 
 }

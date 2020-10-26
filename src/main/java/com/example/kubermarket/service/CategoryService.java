@@ -2,10 +2,15 @@ package com.example.kubermarket.service;
 
 import com.example.kubermarket.domain.Category;
 import com.example.kubermarket.domain.CategoryRepository;
+import com.example.kubermarket.domain.Product;
+import com.example.kubermarket.dto.CategoryDto;
+import com.example.kubermarket.dto.ProductDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -16,9 +21,14 @@ public class CategoryService {
 
     private final CategoryRepository categoryRepository;
 
-    public List<Category> getCategories(){
+    @Cacheable(key = "#num",value = "Category",cacheManager = "CacheManager")
+    public List<CategoryDto> getCategories(Integer num){
         List<Category> categories= (List<Category>) categoryRepository.findAll();
-        return categories;
+        List<CategoryDto> categoryDtoList=new ArrayList<>();
+        for(Category category:categories){
+            categoryDtoList.add(this.convertEntityToDto(category));
+        }
+        return categoryDtoList;
     }
 
 
@@ -38,4 +48,13 @@ public class CategoryService {
     public void deleteCategory(Long id) {
         categoryRepository.deleteById(id);
     }
+
+    private CategoryDto convertEntityToDto(Category category) {
+        CategoryDto categoryDto= new CategoryDto();
+        return categoryDto.builder()
+                .id(category.getId())
+                .name(category.getName())
+                .build();
+    }
+
 }

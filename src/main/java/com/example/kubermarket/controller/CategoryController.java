@@ -1,7 +1,9 @@
 package com.example.kubermarket.controller;
 
 import com.example.kubermarket.domain.Category;
+import com.example.kubermarket.dto.CategoryDto;
 import com.example.kubermarket.service.CategoryService;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -27,14 +29,16 @@ public class CategoryController {
 
     @ResponseBody
     @RequestMapping(value = "/categories", method = RequestMethod.GET)
-    public List<Category> list(){
-        List<Category> categories= categoryService.getCategories();
-
-        return categories;
+    @ApiOperation(value = "Category List(client)", notes = "카테고리 목록 불러오기")
+    public List<CategoryDto> list(){ //DTO 처리 해야한다.
+        Integer num=1;
+        List<CategoryDto> categoryDtoList= categoryService.getCategories(num);
+        return categoryDtoList;
     }
 
     @ResponseBody
     @RequestMapping(value = "/category", method = RequestMethod.POST)
+    @ApiOperation(value = "Category Save(관리자 기능)", notes = "카테고리 저장")
     public ResponseEntity<?> create(
             @RequestBody Category resource
     ) throws URISyntaxException {
@@ -46,6 +50,7 @@ public class CategoryController {
 
     @ResponseBody
     @RequestMapping(value = "/category/{id}",method = RequestMethod.PATCH)
+    @ApiOperation(value = "Category Update(관리자 기능)", notes = "카테고리 수정")
     public String update(@PathVariable("id") Long id,
                          @RequestBody Category resource
     ) throws URISyntaxException {
@@ -56,6 +61,7 @@ public class CategoryController {
 
     @ResponseBody
     @RequestMapping(value = "/category/{id}",method = RequestMethod.DELETE)
+    @ApiOperation(value = "Category delete(관리자 기능)", notes = "카테고리 삭제")
     public String delete(
             @PathVariable("id") Long id
     ) throws URISyntaxException {

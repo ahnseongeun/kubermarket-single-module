@@ -7,6 +7,7 @@ import com.example.kubermarket.service.ErrorAccess;
 import com.example.kubermarket.service.PasswordWrongException;
 import com.example.kubermarket.service.ProductService;
 import io.jsonwebtoken.Claims;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
@@ -40,31 +41,35 @@ public class ProductController implements Serializable {
 
     @ResponseBody //모든 상품을 조회할수 있는 관리자 기능
     @RequestMapping(value = "/allproducts",method = RequestMethod.GET)
+    @ApiOperation(value = "AllProduct (관리자)", notes = "모든 product 조회")
     public List<Product> AllProductList(){
         List<Product> products = productService.getProducts();
-
         return products;
     }
 
     @ResponseBody // 일반 유저가 조회할수 있는 기능
     @RequestMapping(value = "/product/{id}",method = RequestMethod.GET)
+    @ApiOperation(value = "Product Detail (Client)", notes = "하나의 product를 상세하게 조회")
     public ProductDto DetailProduct(
             @Valid @PathVariable Long id){
         ProductDto productDto= productService.getDetailProduct(id);
-        log.info("test");
         log.info(String.valueOf(productDto));
         return productDto;
     }
 
     @ResponseBody // 일반 유저가 조회할수 있는 기능
     @RequestMapping(value = "/products",method = RequestMethod.GET)
+    @ApiOperation(value = "Products according to conditions (Client)",
+            notes = "조건에 따른 product들을 조회 \n " +
+                    "조건: popular,category,address,keyword,page \n" +
+                    "클릭 한번당 8개의 list 조회")
     public List<? extends Object> productList(
             @RequestParam(value="popular", defaultValue = "false",required = false) boolean popular, //interest_count와 chat_count를 합산해서 보여준다.
-            //@RequestParam(value="address", defaultValue = "false",required = false) boolean address, //address와 registerDate를 조합해서 보여준다.
+            @RequestParam(value="category", defaultValue = "",required = false) String category, //address와 registerDate를 조합해서 보여준다.
             @RequestParam(value="address", defaultValue = "",required = false) String address, //address와 registerDate를 조합해서 보여준다.
             @RequestParam(value="keyword", defaultValue = "",required = false) String keyword, //이름이나 동네로 검색
-            @RequestParam(value="page", defaultValue = "1",required = false) Integer pageNum ){
-        if(popular) { //인기 항목순으로 조회
+            @RequestParam(value="page", defaultValue = "1",required = false) Integer pageNum ) {
+        if (popular) { //인기 항목순으로 조회
             List<PopularProductDto> productList = productService.getPopularProducts(pageNum);
             //List<ProductDto> ProductDtoList = new ArrayList<>();
 //            for (Object o : productList) {
@@ -73,10 +78,13 @@ public class ProductController implements Serializable {
 //                        Long.parseLong(String.valueOf(result[0])), Long.parseLong(String.valueOf(result[1])));
 //                popularProductDtoList.add(popularProductDto);
 //            }
-            return  productList;
-        }else if(!address.equals("")){ //주소+최신으로 조회
-            List<ProductDto>  productDtoList  = productService.getAddressProducts(address,pageNum);
-           // List<AddressProductDto> addressProductDtoList = new ArrayList<>();
+            return productList;
+        } else if (!category.equals("")) { //카테고리+최신으로 조회
+            List<ProductDto> productDtoList = productService.getCategoryProducts(category, pageNum);
+            return productDtoList;
+        } else if (!address.equals("")) { //주소+최신으로 조회
+            List<ProductDto> productDtoList = productService.getAddressProducts(address, pageNum);
+            // List<AddressProductDto> addressProductDtoList = new ArrayList<>();
 //            for(Object o : productList){
 //                Object[] result= (Object[]) o;
 //                AddressProductDto addressProductDto = new AddressProductDto(
@@ -86,16 +94,17 @@ public class ProductController implements Serializable {
 //                addressProductDtoList.add(addressProductDto);
 //            }
             return productDtoList;
-        }else{ //키워드로 조회
+        } else { //키워드로 조회
             log.info(keyword);
-            List<ProductDto>  productDtoList = productService.getKeywordProducts(keyword,pageNum);
+            List<ProductDto> productDtoList = productService.getKeywordProducts(keyword, pageNum);
             return productDtoList;
         }
-
     }
+
 
     @ResponseBody
     @RequestMapping(value = "/product",method = RequestMethod.POST)
+    @ApiOperation(value = "Product Add (Client)", notes = "product 추가")
     public ResponseEntity<?> addProduct(
             @Valid
             @RequestParam("title") String title,
@@ -122,6 +131,7 @@ public class ProductController implements Serializable {
 
     @ResponseBody
     @RequestMapping(value = "/product/{id}",method = RequestMethod.PATCH)
+    @ApiOperation(value = "Product Update (Client)", notes = "product 수정")
     public String update(@PathVariable("id") Long id,
                          @Valid
                          @RequestParam("title") String title,
@@ -146,6 +156,7 @@ public class ProductController implements Serializable {
 
     @ResponseBody
     @RequestMapping(value = "/product/{id}",method = RequestMethod.DELETE)
+    @ApiOperation(value = "Product Delete (Client)", notes = "product 삭제")
     public String delete(
             @PathVariable("id") Long id,Authentication authentication
     ) throws URISyntaxException {
@@ -160,6 +171,7 @@ public class ProductController implements Serializable {
 
     @ResponseBody
     @RequestMapping(value = "/productImage/{imageId}",method = RequestMethod.DELETE)
+    @ApiOperation(value = "Product Image Delete (Client)", notes = "product Image 따로 삭제")
     public String deleteImage(
             @PathVariable("imageId") Long imageId,
             Authentication authentication

@@ -5,6 +5,7 @@ import com.example.kubermarket.service.EmailExistedException;
 import com.example.kubermarket.service.ErrorAccess;
 import com.example.kubermarket.service.UserService;
 import io.jsonwebtoken.Claims;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -30,6 +31,7 @@ public class UserController {
 
     @ResponseBody // 관리자가 user 관리할때
     @RequestMapping(value = "/users", method = RequestMethod.GET)
+    @ApiOperation(value = "ALL UserList (admin)", notes = "모든 사용자 조회")
     public List<User> AllUserList() {
         List<User> userList = userService.getUsers();
         return userList;
@@ -37,6 +39,7 @@ public class UserController {
 
     @ResponseBody // 단일 user 정보 불러올때
     @RequestMapping(value = "/user", method = RequestMethod.GET)
+    @ApiOperation(value = "User Detail (Client)", notes = "사용자 세부정보 조회")
     public User getUser(
                         //@Valid @PathVariable Long id,
                         Authentication authentication) {
@@ -51,6 +54,7 @@ public class UserController {
 
     @ResponseBody
     @RequestMapping(value = "/user",method = RequestMethod.POST)
+    @ApiOperation(value = "User ADD (Client)", notes = "사용자 추가")
     public User create(
             @Valid
             @RequestParam("email") String email,
@@ -66,6 +70,7 @@ public class UserController {
 
     @ResponseBody // user 정보 수정할때
     @RequestMapping(value = "/user/{id}", method = RequestMethod.PATCH)
+    @ApiOperation(value = "User Update (Client)", notes = "사용자 정보 수정")
     public User updateUser(
             @Valid
             @PathVariable Long id,
@@ -85,6 +90,7 @@ public class UserController {
 
     @ResponseBody // user 정보 수정할때
     @RequestMapping(value = "/user/{id}", method = RequestMethod.DELETE)
+    @ApiOperation(value = "User Delete (Client)", notes = "사용자 삭제")
     public String deleteUser(
             @Valid
             @PathVariable Long id

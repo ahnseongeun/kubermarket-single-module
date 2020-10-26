@@ -29,13 +29,11 @@ public class SecurityJavaConfig extends WebSecurityConfigurerAdapter {
                 .formLogin().disable()
                 .headers().frameOptions().disable()
                 .and()
-                .addFilter( filter)
+                .addFilter(filter)
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
     }
-
-
 
     @Bean
     public PasswordEncoder passwordEncoder(){

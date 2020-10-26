@@ -7,6 +7,7 @@ import com.example.kubermarket.dto.LoginResponseDto;
 import com.example.kubermarket.service.ErrorAccess;
 import com.example.kubermarket.service.LoginService;
 import io.jsonwebtoken.Claims;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -32,10 +33,11 @@ public class LoginController {
 
     @ResponseBody
     @RequestMapping(value = "/login",method = RequestMethod.POST)
+    @ApiOperation(value = "Login (client)", notes = "로그인을 통해서 token 얻기")
     public LoginResponseDto create(
             @RequestBody LoginRequestDto requestDto){
         User user= loginService.authenticate(requestDto.getEmail(),requestDto.getPassword());
-        String accessToken = jwtUtil.creatToken(user.getNickName());
+        String accessToken = jwtUtil.creatToken(user.getEmail(),user.getNickName());
         LoginResponseDto ReceiveToken = LoginResponseDto.builder().accessToken(accessToken).build();
         log.info(ReceiveToken.getAccessToken());
         return ReceiveToken;

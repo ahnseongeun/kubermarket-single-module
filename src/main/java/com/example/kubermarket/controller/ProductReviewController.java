@@ -5,6 +5,7 @@ import com.example.kubermarket.dto.ProductReviewDto;
 import com.example.kubermarket.service.ErrorAccess;
 import com.example.kubermarket.service.ProductReviewService;
 import io.jsonwebtoken.Claims;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -29,6 +30,7 @@ public class ProductReviewController {
 
     @ResponseBody//Product에 해당하는 Review 추가
     @RequestMapping(value = "/product/{productId}/review",method = RequestMethod.POST)
+    @ApiOperation(value = "ProductReview ADD (Client)", notes = "productReview 추가")
     public ProductReview AddProductReview(
             @Valid @RequestBody ProductReviewDto resource,
             @PathVariable Long productId
@@ -48,6 +50,7 @@ public class ProductReviewController {
 
     @ResponseBody//Product에 해당하는 Review 수정
     @RequestMapping(value = "/product/review/{id}",method = RequestMethod.PATCH)
+    @ApiOperation(value = "ProductReview Update (Client)", notes = "productReview 수정")
     public ProductReview updateProductReview(
             @Valid @RequestBody ProductReviewDto resource,
             @PathVariable Long id
@@ -65,6 +68,7 @@ public class ProductReviewController {
 
     @ResponseBody//Product에 해당하는 Review 삭제
     @RequestMapping(value = "/product/review/{id}",method = RequestMethod.DELETE)
+    @ApiOperation(value = "ProductReview Delete (Client)", notes = "productReview 삭제")
     public void DeleteProductReview(
             @Valid
             @PathVariable Long id,Authentication authentication){

@@ -4,6 +4,7 @@ import com.example.kubermarket.domain.Category;
 import com.example.kubermarket.domain.ChatRoom;
 import com.example.kubermarket.service.CategoryService;
 import com.example.kubermarket.service.ChatRoomService;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -29,6 +30,7 @@ public class ChatRoomController {
 
     @ResponseBody
     @RequestMapping(value = "/chatrooms", method = RequestMethod.GET)
+    @ApiOperation(value = "ChatRoom Save(관리자 기능)", notes = "채팅방 목록 불러오기")
     public List<ChatRoom> list(){
         List<ChatRoom> chatRooms = chatRoomService.getChatRooms();
 
