@@ -30,7 +30,7 @@ public class ChatRoomController {
 
     @ResponseBody
     @RequestMapping(value = "/chatrooms", method = RequestMethod.GET)
-    @ApiOperation(value = "ChatRoom Save(관리자 기능)", notes = "채팅방 목록 불러오기")
+    @ApiOperation(value = "ChatRoom List(관리자 기능)", notes = "채팅방 목록 불러오기")
     public List<ChatRoom> list(){
         List<ChatRoom> chatRooms = chatRoomService.getChatRooms();
 

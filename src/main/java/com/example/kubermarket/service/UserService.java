@@ -29,14 +29,13 @@ public class UserService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
     private final PasswordEncoder passwordEncoder;
-    String fileUrl =  System.getProperty("user.home") + "\\files";
+    private String fileUrl =  System.getProperty("user.home") + "\\files";
 
     public List<User> getUsers() {
         List<User> userList= (List<User>) userRepository.findAll();
         return userList;
     }
 
-    //@Cacheable(key = "#nickname",value = "user",cacheManager = "CacheManager")
     public User getUser(String nickname) {
         User user= userRepository.findByNickName(nickname);
         String imageUrl= user.getProfileImageUrl();

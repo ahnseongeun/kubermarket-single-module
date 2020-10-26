@@ -7,6 +7,7 @@ import org.hibernate.annotations.Proxy;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 @Data
 @Accessors(chain = true)
@@ -18,7 +19,7 @@ import javax.validation.constraints.NotNull;
 @ToString(exclude = {"product"})
 @Table(name = "productImage")
 @Proxy(lazy = false)
-public class ProductImage {
+public class ProductImage implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

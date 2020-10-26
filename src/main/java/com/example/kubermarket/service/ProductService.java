@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,7 +37,7 @@ public class ProductService {
     public final ProductImageRepository productImageRepository;
     public final CategoryRepository categoryRepository;
     public final UserRepository userRepository;
-    String fileUrl =  System.getProperty("user.home") + "\\files";
+    private String fileUrl =  System.getProperty("user.home") + "\\files";
 
     public List<Product> getProducts() {
         List<Product> products = (List<Product>) productRepository.findAll();
@@ -133,8 +134,9 @@ public class ProductService {
     }
 
     @Transactional
+    //TODO multipart will solve
     public Product addProduct(String title, String content, LocalDateTime createDate, LocalDateTime updateDate,
-                              Integer price, Integer interestCount, String status, String categoryName, String nickName, List<MultipartFile> files) throws IOException {
+                              Integer price, String status, String categoryName, String nickName, List<MultipartFile> files) throws IOException {
 
         Category category = categoryRepository.findByName(categoryName).orElse(null);
         User user = userRepository.findByNickName(nickName);
@@ -146,14 +148,13 @@ public class ProductService {
                 .createDate(createDate)
                 .updateDate(updateDate)
                 .price(price)
-                .interestCount(interestCount)
+                .interestCount(0)
                 .status(status)
                 .category(category)
                 .user(user)
                 .build();
-        productRepository.save(product);
-
         List<ProductImage> productImageList = new ArrayList<>();
+        log.info(String.valueOf(files.size()));
         if(files!=null) {
             for (MultipartFile file : files) {
                 log.info(file.getOriginalFilename());
@@ -170,6 +171,9 @@ public class ProductService {
                 productImageList.add(productImageRepository.save(productImage));
             }
         }
+        product.setProductImages(productImageList);
+        log.info(String.valueOf(productImageList));
+        productRepository.save(product);
         return product;
     }
 
@@ -212,6 +216,7 @@ public class ProductService {
     }
 
     @Transactional
+    @CacheEvict(key = "#id",value = "DetailProduct",cacheManager = "CacheManager")
     public Product updateProduct(Long id,String title, String content, LocalDateTime updateDate,
                                  Integer price, Integer interestCount, String status,String categoryName,String nickName,
                                 List<MultipartFile> files) throws IOException {
@@ -236,6 +241,7 @@ public class ProductService {
     }
 
     @Transactional
+    @CacheEvict(key = "#id",value = "DetailProduct",cacheManager = "CacheManager")
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
     }

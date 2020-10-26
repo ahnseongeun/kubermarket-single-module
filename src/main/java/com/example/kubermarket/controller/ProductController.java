@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -101,16 +102,16 @@ public class ProductController implements Serializable {
         }
     }
 
-
+    //Content-Type은 multipart/form-data이고, form-data를 보내므로 @RequestBody 같은 어노테이션을 붙이면 안 됩니다.
     @ResponseBody
-    @RequestMapping(value = "/product",method = RequestMethod.POST)
+    @RequestMapping(value = "/product",method = RequestMethod.POST,consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     @ApiOperation(value = "Product Add (Client)", notes = "product 추가")
     public ResponseEntity<?> addProduct(
             @Valid
             @RequestParam("title") String title,
             @RequestParam("content") String content,
             @RequestParam("price") Integer price,
-            @RequestParam("interestCount") Integer interestCount,
+            //@RequestParam("interestCount") Integer interestCount,
             @RequestParam("status") String status,
             @RequestParam("categoryName") String categoryName,
             @RequestParam(value = "files",required = false) List<MultipartFile> files,
@@ -123,7 +124,7 @@ public class ProductController implements Serializable {
         String nickName = claims.get("nickName", String.class);
         LocalDateTime createDate = LocalDateTime.now();
         LocalDateTime updateDate = LocalDateTime.now();
-        Product product = productService.addProduct(title, content, createDate, updateDate, price, interestCount, status, categoryName, nickName, files);
+        Product product = productService.addProduct(title, content, createDate, updateDate, price, status, categoryName, nickName, files);
         String url = "/api/product/" + product.getId();
         return ResponseEntity.created(new URI(url)).body("{}");
 
