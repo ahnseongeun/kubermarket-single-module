@@ -7,14 +7,18 @@ import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.Cache;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -90,13 +94,24 @@ public class ProductService {
 
     @Cacheable(key = "#keyword.concat(#pageNum)",value = "KeywordProduct",cacheManager = "CacheManager")
     public List<ProductDto> getKeywordProducts(String keyword,Integer pageNum) {
-        //JPA에서 limit을 사용하는 대신에 pageRequest를 사용해야 한다.
-        Pageable pageRequest = PageRequest.of(0,5*pageNum);
-        Page<Product> products= productRepository.findByKeyword('%'+keyword+'%',pageRequest);
-        List<ProductDto> productDtoList= new ArrayList<>();
-        for(Product product: products){
-            productDtoList.add(this.convertEntityToDto(product));
-        }
+        List<ProductDto> productDtoList = new ArrayList<>();
+        //ValueOperations<String,Object> redisData = redisTemplate.opsForValue();
+        //String Key=keyword+"::"+pageNum;
+        //log.info(String.valueOf(redisData.get(Key)));
+        //if(redisData.get(Key)==null) {
+            //JPA에서 limit을 사용하는 대신에 pageRequest를 사용해야 한다.
+            Pageable pageRequest = PageRequest.of(0, 5 * pageNum);
+            Page<Product> products = productRepository.findByKeyword('%' + keyword + '%', pageRequest);
+            for (Product product : products) {
+                productDtoList.add(this.convertEntityToDto(product));
+            }
+            log.info("getKeywordProducts");
+            //redisData.set(Key, productDtoList);
+        //}else{
+          //  log.info("getKeyword_cache");
+           // productDtoList= (List<ProductDto>) redisData.get(Key);
+        //}
+       // System.out.println(redisData.get(Key));
         return  productDtoList;
     }
 
@@ -133,8 +148,9 @@ public class ProductService {
                 .build();
     }
 
-    @Transactional
     //TODO multipart will solve
+    @Transactional
+    @CacheEvict(cacheNames = {"DetailProduct","PopularProduct","AddressProduct","CategoryProduct","KeywordProduct"},allEntries = true)
     public Product addProduct(String title, String content, LocalDateTime createDate, LocalDateTime updateDate,
                               Integer price, String status, String categoryName, String nickName, List<MultipartFile> files) throws IOException {
 
@@ -155,7 +171,7 @@ public class ProductService {
                 .build();
         List<ProductImage> productImageList = new ArrayList<>();
         log.info(String.valueOf(files.size()));
-        if(files!=null) {
+        if(!files.isEmpty()) {
             for (MultipartFile file : files) {
                 log.info(file.getOriginalFilename());
                 log.info(file.getContentType());
@@ -216,37 +232,41 @@ public class ProductService {
     }
 
     @Transactional
-    @CacheEvict(key = "#id",value = "DetailProduct",cacheManager = "CacheManager")
+    @CacheEvict(cacheNames = {"DetailProduct","PopularProduct","AddressProduct","CategoryProduct","KeywordProduct"},allEntries = true)
     public Product updateProduct(Long id,String title, String content, LocalDateTime updateDate,
                                  Integer price, Integer interestCount, String status,String categoryName,String nickName,
                                 List<MultipartFile> files) throws IOException {
         Product product= productRepository.findById(id).orElse(null);
         product.updateProduct(title,content,updateDate, price,interestCount,status);
         product.setCategory(categoryRepository.findByName(categoryName).orElse(null));
-        for(MultipartFile file :files) {
-            log.info(file.getContentType());
-            String filename = file.getOriginalFilename();
-            String filePath = fileUrl + "\\" + filename;
-            file.transferTo(new File(filePath));
-            ProductImage productImage = ProductImage.builder()
-                    .fileUrl(filePath)
-                    .filename(filename)
-                    .deleteFlag(true)
-                    .product(product)
-                    .build();
-            productImageRepository.save(productImage);
+        if(!files.isEmpty()) {
+            for (MultipartFile file : files) {
+                log.info(file.getContentType());
+                String filename = file.getOriginalFilename();
+                String filePath = fileUrl + "\\" + filename;
+                file.transferTo(new File(filePath));
+                ProductImage productImage = ProductImage.builder()
+                        .fileUrl(filePath)
+                        .filename(filename)
+                        .deleteFlag(true)
+                        .product(product)
+                        .build();
+                productImageRepository.save(productImage);
+            }
         }
         productRepository.save(product);
+
         return product;
     }
 
     @Transactional
-    @CacheEvict(key = "#id",value = "DetailProduct",cacheManager = "CacheManager")
+    @CacheEvict(cacheNames = {"DetailProduct","PopularProduct","AddressProduct","CategoryProduct","KeywordProduct"},allEntries = true)
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
     }
 
     @Transactional
+    @CacheEvict(cacheNames = {"DetailProduct","PopularProduct","AddressProduct","CategoryProduct","KeywordProduct"},allEntries = true)
     public void deleteImage(Long imageId) {
         ProductImage productImage= productImageRepository.findById(imageId).orElse(null);
         //productImage.setDeleteFlag(false);

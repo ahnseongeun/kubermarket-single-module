@@ -8,6 +8,7 @@ import com.example.kubermarket.service.PasswordWrongException;
 import com.example.kubermarket.service.ProductService;
 import io.jsonwebtoken.Claims;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
@@ -24,6 +25,7 @@ import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -104,7 +106,7 @@ public class ProductController implements Serializable {
 
     //Content-Type은 multipart/form-data이고, form-data를 보내므로 @RequestBody 같은 어노테이션을 붙이면 안 됩니다.
     @ResponseBody
-    @RequestMapping(value = "/product",method = RequestMethod.POST,consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @RequestMapping(value = "/product",method = RequestMethod.POST)//,consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,MediaType.APPLICATION_JSON_VALUE})
     @ApiOperation(value = "Product Add (Client)", notes = "product 추가")
     public ResponseEntity<?> addProduct(
             @Valid
@@ -124,6 +126,9 @@ public class ProductController implements Serializable {
         String nickName = claims.get("nickName", String.class);
         LocalDateTime createDate = LocalDateTime.now();
         LocalDateTime updateDate = LocalDateTime.now();
+        for(MultipartFile file: files){
+            System.out.println(file.getOriginalFilename());
+        }
         Product product = productService.addProduct(title, content, createDate, updateDate, price, status, categoryName, nickName, files);
         String url = "/api/product/" + product.getId();
         return ResponseEntity.created(new URI(url)).body("{}");

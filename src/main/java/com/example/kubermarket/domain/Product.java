@@ -49,9 +49,9 @@ public class Product implements Serializable {
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime createDate;
 
+    @UpdateTimestamp
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
-    @UpdateTimestamp
     private LocalDateTime updateDate;
 
     @NotNull
