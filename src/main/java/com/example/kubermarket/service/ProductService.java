@@ -50,7 +50,7 @@ public class ProductService {
 
     @Cacheable(key = "#pageNum",value = "PopularProduct",cacheManager = "CacheManager")
     public List<PopularProductDto> getPopularProducts(Integer pageNum) {
-        Pageable pageRequest = PageRequest.of(0,5*pageNum);
+        Pageable pageRequest = PageRequest.of(0,8*pageNum);
         Page<Product> productList = productRepository.findByPopular(pageRequest);
         List<PopularProductDto> productDtoList= new ArrayList<>();
         Integer count=0;
@@ -72,7 +72,7 @@ public class ProductService {
     }
     @Cacheable(key = "#category.concat(#pageNum)",value = "CategoryProduct",cacheManager = "CacheManager")
     public List<ProductDto> getCategoryProducts(String category, Integer pageNum) {
-        Pageable pageRequest = PageRequest.of(0,5*pageNum);
+        Pageable pageRequest = PageRequest.of(0,8*pageNum);
         Page<Product> products= productRepository.findByCategory(category,pageRequest);
         List<ProductDto> productDtoList= new ArrayList<>();
         for(Product product: products){
@@ -83,7 +83,7 @@ public class ProductService {
 
     @Cacheable(key = "#address.concat(#pageNum)",value = "AddressProduct",cacheManager = "CacheManager")
     public  List<ProductDto> getAddressProducts(String address,Integer pageNum) {
-        Pageable pageRequest = PageRequest.of(0,5*pageNum);
+        Pageable pageRequest = PageRequest.of(0,8*pageNum);
         Page<Product> products= productRepository.findByAddress(address,pageRequest);
         List<ProductDto> productDtoList= new ArrayList<>();
         for(Product product: products){
@@ -100,7 +100,7 @@ public class ProductService {
         //log.info(String.valueOf(redisData.get(Key)));
         //if(redisData.get(Key)==null) {
             //JPA에서 limit을 사용하는 대신에 pageRequest를 사용해야 한다.
-            Pageable pageRequest = PageRequest.of(0, 5 * pageNum);
+            Pageable pageRequest = PageRequest.of(0, 8 * pageNum);
             Page<Product> products = productRepository.findByKeyword('%' + keyword + '%', pageRequest);
             for (Product product : products) {
                 productDtoList.add(this.convertEntityToDto(product));
