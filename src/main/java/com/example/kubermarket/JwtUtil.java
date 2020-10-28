@@ -27,7 +27,7 @@ public class JwtUtil {
         this.key= Keys.hmacShaKeyFor(secret.getBytes());
         log.info(String.valueOf(key));
     }
-
+    //다중로그인처리는 어떻게?
     public String creatToken(String email,String nickName){
         JwtBuilder builder= Jwts.builder()
                 .claim("email",email)
