@@ -9,9 +9,14 @@ services:
       MYSQL_DATABASE: kubermarket
       MYSQL_ROOT_PASSWORD: 123321
       MYSQL_ROOT_HOST: '%'
-  docker-redis:
-    container_name: docker-redis
+
+
+  redis:
+    container_name: redis
     image: redis
+    environment:
+      REDIS_ADDRESS: redis
+      SPRING_REDIS_HOST: redis
     restart: always
     ports:
       - 6379:6379
@@ -19,7 +24,7 @@ services:
   springboot:
     depends_on:
       - docker-mysql
-      - docker-redis
+      - redis
     build:
       context: .
       dockerfile: Dockerfile
