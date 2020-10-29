@@ -6,25 +6,36 @@ services:
     ports:
       - 13306:3306
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_ROOT_HOST: root
       MYSQL_DATABASE: kubermarket
+      MYSQL_ROOT_PASSWORD: 123321
+      MYSQL_ROOT_HOST: '%'
+
+  docker-redis:
+    container_name: docker-redis
+    image: redis
+    restart: always
+    ports:
+      - 6379:6379
 
   springboot:
     depends_on:
       - docker-mysql
+      - docker-redis
     build:
       context: .
       dockerfile: Dockerfile
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://docker-mysql:3306/kubermarket?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      #MYSQL_ADDRESS: mysql
-      #MYSQL_PORT: 13306
+      #MYSQL_ADDRESS: docker-mysql
+      #MYSQL_PORT: 3306
       MYSQL_USERNAME: root
-      MYSQL_PASSWORD: root
+      MYSQL_PASSWORD: 123321
     ports:
       - 8080:8080
     restart: always
+
+
+
 #networks:
 #  my-network:
 #    driver: bridge
