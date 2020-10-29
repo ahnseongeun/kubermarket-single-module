@@ -9,7 +9,6 @@ services:
       MYSQL_DATABASE: kubermarket
       MYSQL_ROOT_PASSWORD: 123321
       MYSQL_ROOT_HOST: '%'
-
   docker-redis:
     container_name: docker-redis
     image: redis
