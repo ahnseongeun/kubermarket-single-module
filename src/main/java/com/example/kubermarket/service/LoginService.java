@@ -1,8 +1,9 @@
 package com.example.kubermarket.service;
 
+import com.example.kubermarket.controller.EmailNotExistedException;
+import com.example.kubermarket.controller.PasswordWrongException;
 import com.example.kubermarket.domain.User;
 import com.example.kubermarket.domain.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

@@ -19,7 +19,8 @@ public class PopularProductDto {
     private Integer price;
     private Integer interestCount;
     private String status;
-    private String address;
+    private String address1;
+    private String address2;
     private String categoryName;
     private String nickName;
     private Integer chatCount;

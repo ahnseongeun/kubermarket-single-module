@@ -3,17 +3,12 @@ package com.example.kubermarket.controller;
 import com.example.kubermarket.domain.Product;
 import com.example.kubermarket.dto.PopularProductDto;
 import com.example.kubermarket.dto.ProductDto;
-import com.example.kubermarket.service.ErrorAccess;
-import com.example.kubermarket.service.PasswordWrongException;
 import com.example.kubermarket.service.ProductService;
 import io.jsonwebtoken.Claims;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -25,7 +20,6 @@ import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -126,9 +120,6 @@ public class ProductController implements Serializable {
         String nickName = claims.get("nickName", String.class);
         LocalDateTime createDate = LocalDateTime.now();
         LocalDateTime updateDate = LocalDateTime.now();
-        for(MultipartFile file: files){
-            System.out.println(file.getOriginalFilename());
-        }
         Product product = productService.addProduct(title, content, createDate, updateDate, price, status, categoryName, nickName, files);
         String url = "/api/product/" + product.getId();
         return ResponseEntity.created(new URI(url)).body("{}");

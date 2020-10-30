@@ -4,18 +4,14 @@ import com.example.kubermarket.JwtUtil;
 import com.example.kubermarket.domain.User;
 import com.example.kubermarket.dto.LoginRequestDto;
 import com.example.kubermarket.dto.LoginResponseDto;
-import com.example.kubermarket.service.ErrorAccess;
 import com.example.kubermarket.service.LoginService;
-import io.jsonwebtoken.Claims;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @Slf4j
 @Controller
@@ -35,8 +31,10 @@ public class LoginController {
     @RequestMapping(value = "/login",method = RequestMethod.POST)
     @ApiOperation(value = "Login (client)", notes = "로그인을 통해서 token 얻기")
     public LoginResponseDto create(
-            @RequestBody LoginRequestDto requestDto){
-        User user= loginService.authenticate(requestDto.getEmail(),requestDto.getPassword());
+            @Valid
+            @RequestParam("email") String email,
+            @RequestParam("password") String password){
+        User user= loginService.authenticate(email,password);
         String accessToken = jwtUtil.creatToken(user.getEmail(),user.getNickName());
         LoginResponseDto ReceiveToken = LoginResponseDto.builder().accessToken(accessToken).build();
         log.info(ReceiveToken.getAccessToken());

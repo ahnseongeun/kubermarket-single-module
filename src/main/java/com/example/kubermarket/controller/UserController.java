@@ -1,8 +1,6 @@
 package com.example.kubermarket.controller;
 
 import com.example.kubermarket.domain.User;
-import com.example.kubermarket.service.EmailExistedException;
-import com.example.kubermarket.service.ErrorAccess;
 import com.example.kubermarket.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.swagger.annotations.ApiOperation;

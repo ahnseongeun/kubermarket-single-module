@@ -1,4 +1,4 @@
-package com.example.kubermarket.service;
+package com.example.kubermarket.controller;
 
 public class EmailExistedException extends Throwable {
     public EmailExistedException(String email) {

@@ -1,7 +1,7 @@
-package com.example.kubermarket.service;
+package com.example.kubermarket.controller;
 
 public class EmailNotExistedException extends RuntimeException{
-    EmailNotExistedException(String email){
+    public EmailNotExistedException(String email){
         super("Email is not Registered" + email);
     }
 }
