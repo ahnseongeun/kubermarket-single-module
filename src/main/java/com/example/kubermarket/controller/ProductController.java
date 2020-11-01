@@ -22,6 +22,8 @@ import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.List;
 
+//TODO
+//추후에 인기 검색어 개발 redis의 sorted set 활용해서 가장 많이 검색된 단어를 sort해서 보여주는 방식
 @Slf4j
 @Controller
 @RequestMapping(value = "/api")

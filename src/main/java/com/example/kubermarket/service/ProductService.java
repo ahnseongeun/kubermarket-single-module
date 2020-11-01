@@ -17,18 +17,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 
 @Slf4j
@@ -81,17 +83,53 @@ public class ProductService {
         }
         return  productDtoList;
     }
-
-    @Cacheable(key = "#address.concat(#pageNum)",value = "AddressProduct",cacheManager = "CacheManager")
+    //페이지 단위로 캐쉬를 적용했지만 새로운 데이터가 추가됬을때 어떻게 변경 해야할지 잘모르겠다.
+    //일일이 캐쉬를 들어가면서 확인하는 것은 너무 비효율적인 방식이라고 생각이 돼서 방법을 바꿔야한다고 생각이 되었다.
+    //전체 상품을 적재 시키고 거기서 추가시키는 방식으로 한다
+    //pageNum을 이용해서 한정적으로 데이터를 보여주는 방식으로 바뀐다.
+    //@Cacheable(key = "#address",value = "AddressProduct",condition = #pageNum < 1600 ,cacheManager = "CacheManager")
     public  List<ProductDto> getAddressProducts(String address,Integer pageNum) {
-        Pageable pageRequest = PageRequest.of(0,16*pageNum);
-        Page<Product> products= productRepository.findByAddress(address,pageRequest);
-        List<ProductDto> productDtoList= new ArrayList<>();
-        for(Product product: products){
-            productDtoList.add(this.convertEntityToDto(product));
+        List<ProductDto> productDtoList=new ArrayList<>();
+        ValueOperations<String,Object> redisData = redisTemplate.opsForValue();
+        ZSetOperations<String,Object> redisList= redisTemplate.opsForZSet();
+        String Key=address;
+        //log.info(String.valueOf(redisData.size(Key)));
+        if(redisData.get(Key)==null) { //전체 데이터 담기
+            //Pageable pageRequest = PageRequest.of(0,16*pageNum);
+            //Page<Product> products= productRepository.findByAddress(address,pageRequest);
+            List<Product> products=productRepository.findByAddress(address);
+            int count=0;
+            for(Product product: products){
+                productDtoList.add(this.convertEntityToDto(product));
+            }
+           redisData.set(Key,productDtoList);
+        }else{
+            log.info("getKeyword_cache");
+            productDtoList = (List<ProductDto>) redisData.get(Key);
+            productDtoList.sort(new Comparator<ProductDto>() {
+                @Override
+                public int compare(ProductDto o1, ProductDto o2) {
+                    return o2.getCreateDate().compareTo(o1.getCreateDate());
+                }
+            });
+            if(pageNum*16>productDtoList.size()) {
+                productDtoList = productDtoList.subList(0, productDtoList.size());
+            }else{
+                productDtoList = productDtoList.subList(0, pageNum*16);
+            }
+            //productDtoList= (List<ProductDto>) redisData.get(Key);
         }
         return  productDtoList;
     }
+    //ValueOperations<String,Object> redisData = redisTemplate.opsForValue();
+    //String Key=keyword+"::"+pageNum;
+    //log.info(String.valueOf(redisData.get(Key)));
+    //if(redisData.get(Key)==null) {
+    //redisData.set(Key, productDtoList);
+    //}else{
+    //  log.info("getKeyword_cache");
+    // productDtoList= (List<ProductDto>) redisData.get(Key);
+    //}
 
     @Cacheable(key = "#keyword.concat(#pageNum)",value = "KeywordProduct",cacheManager = "CacheManager")
     public List<ProductDto> getKeywordProducts(String keyword,Integer pageNum) {
@@ -152,8 +190,13 @@ public class ProductService {
     }
 
     //TODO multipart will solve
+    //DetailProduct는 id값을 이용해서 해당 prodcut만 삭제하는 방향으로
+    //KeywordProduct는 해당 keyword가 들어간 cache만 삭제를 한다. Keyword는 다양해서 캐시를 안하는게 날수도?
+    //PopularProudct 10분주기로 해도 안늦을 것같다. 쉽게 바뀌지 않으니깐
+    //AddressProudct  ADDPRODUCT에만 적용되는데 단순히 AddressProudct에 추가만 해주면될거같음
+    //CategoryProudct categoryName을 이용해서 cache에 새로운 상품을 추가하는데 가장 앞에 추가하기
     @Transactional
-    @CacheEvict(cacheNames = {"DetailProduct","PopularProduct","AddressProduct","CategoryProduct","KeywordProduct"},allEntries = true)
+    //@CacheEvict(cacheNames = {"DetailProduct","PopularProduct","CategoryProduct","KeywordProduct"},allEntries = true)
     public Product addProduct(String title, String content, LocalDateTime createDate, LocalDateTime updateDate,
                               Integer price, String status, String categoryName, String nickName, List<MultipartFile> files) throws IOException {
 
@@ -173,8 +216,7 @@ public class ProductService {
                 .user(user)
                 .build();
         List<ProductImage> productImageList = new ArrayList<>();
-        log.info(String.valueOf(files.size()));
-        if(!files.isEmpty()) {
+        if(files!=null) {
             for (MultipartFile file : files) {
                 log.info(file.getOriginalFilename());
                 log.info(file.getContentType());
@@ -193,6 +235,8 @@ public class ProductService {
         product.setProductImages(productImageList);
         log.info(String.valueOf(productImageList));
         productRepository.save(product);
+        CacheService cacheSevice=new CacheService();
+        cacheSevice.deleteProductCache(user.getAddress1(), categoryName);
         return product;
     }
 
