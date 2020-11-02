@@ -18,8 +18,10 @@ public interface ProductRepository extends CrudRepository<Product,Long> {
    //TODO// Page<Product> findByAddress(@Param("address") String address, Pageable pageRequest);
    List<Product> findByAddress(@Param("address") String address);
    Page<Product> findByKeyword(@Param("keyword") String keyword, Pageable pageRequest);
-   Page<Product> findByPopular(Pageable pageRequest);
-   Page<Product> findByCategory(@Param("category") String category, Pageable pageRequest);
+   List<Product> findByPopular();
+   List<Product> findByCategory(@Param("category") String category);
+   //Page<Product> findByPopular(Pageable pageRequest);
+   //Page<Product> findByCategory(@Param("category") String category, Pageable pageRequest);
 
 //test
     //List<Product> findAll(Sort interestCount);

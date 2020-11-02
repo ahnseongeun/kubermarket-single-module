@@ -6,7 +6,10 @@ import com.example.kubermarket.domain.Product;
 import com.example.kubermarket.dto.CategoryDto;
 import com.example.kubermarket.dto.ProductDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,37 +19,48 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class CategoryService {
 
+    private final RedisTemplate<String, Object> redisTemplate;
     private final CategoryRepository categoryRepository;
 
-    @Cacheable(key = "#num",value = "Category",cacheManager = "CacheManager")
-    public List<CategoryDto> getCategories(Integer num){
+    //@Cacheable(key = "CategoryList" , value = "Category",cacheManager = "CacheManager")
+    public List<CategoryDto> getCategories(){
+        ValueOperations<String,Object> redisData = redisTemplate.opsForValue();
+        String Key= "GetCategoryList";
         List<Category> categories= (List<Category>) categoryRepository.findAll();
         List<CategoryDto> categoryDtoList=new ArrayList<>();
         for(Category category:categories){
             categoryDtoList.add(this.convertEntityToDto(category));
         }
+        redisData.set(Key,categoryDtoList);
         return categoryDtoList;
     }
-
 
     public Category addCategory(String name) {
         Category category= Category.builder().name(name).build();
         categoryRepository.save(category);
+        String Key= "GetCategoryList";
+        redisTemplate.delete(Key);
         return  category;
     }
 
+    //@CacheEvict(key = "CategoryList",value = "Category",cacheManager = "CacheManager")
     public Category updateCategory(Long id,String name) {
         Category category = categoryRepository.findById(id).orElse(null);
-        category.updateInfomation(name);
+        category.setName(name);
         categoryRepository.save(category);
+        String Key= "GetCategoryList";
+        redisTemplate.delete(Key);
         return  category;
     }
 
+    //@CacheEvict(key = "CategoryList",value = "Category",cacheManager = "CacheManager")
     public void deleteCategory(Long id) {
+
         categoryRepository.deleteById(id);
+        String Key= "GetCategoryList";
+        redisTemplate.delete(Key);
     }
 
     private CategoryDto convertEntityToDto(Category category) {

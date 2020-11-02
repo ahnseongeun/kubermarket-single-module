@@ -4,12 +4,9 @@ import com.example.kubermarket.domain.Category;
 import com.example.kubermarket.dto.CategoryDto;
 import com.example.kubermarket.service.CategoryService;
 import io.swagger.annotations.ApiOperation;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -31,18 +28,17 @@ public class CategoryController {
     @RequestMapping(value = "/categories", method = RequestMethod.GET)
     @ApiOperation(value = "Category List(client)", notes = "카테고리 목록 불러오기")
     public List<CategoryDto> list(){ //DTO 처리 해야한다.
-        Integer num=1;
-        List<CategoryDto> categoryDtoList= categoryService.getCategories(num);
+        List<CategoryDto> categoryDtoList= categoryService.getCategories();
         return categoryDtoList;
     }
+
 
     @ResponseBody
     @RequestMapping(value = "/category", method = RequestMethod.POST)
     @ApiOperation(value = "Category Save(관리자 기능)", notes = "카테고리 저장")
     public ResponseEntity<?> create(
-            @RequestBody Category resource
+            @RequestParam(value="category", defaultValue = "false",required = false) String name
     ) throws URISyntaxException {
-        String name = resource.getName();
         Category category = categoryService.addCategory(name);
         String url = "/api/category/" + category.getId();
         return ResponseEntity.created(new URI(url)).body("{}");
@@ -51,12 +47,10 @@ public class CategoryController {
     @ResponseBody
     @RequestMapping(value = "/category/{id}",method = RequestMethod.PATCH)
     @ApiOperation(value = "Category Update(관리자 기능)", notes = "카테고리 수정")
-    public String update(@PathVariable("id") Long id,
-                         @RequestBody Category resource
+    public Category update(@PathVariable("id") Long id,
+                           @RequestParam(value="category", defaultValue = "false",required = false) String name
     ) throws URISyntaxException {
-        String name = resource.getName();
-        categoryService.updateCategory(id,name);
-        return "{}";
+        return categoryService.updateCategory(id,name);
     }
 
     @ResponseBody

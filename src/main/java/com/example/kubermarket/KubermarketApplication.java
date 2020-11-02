@@ -22,7 +22,7 @@ public class KubermarketApplication implements CommandLineRunner {
         SpringApplication.run(KubermarketApplication.class, args);
     }
 
-
+	private final ChatMessageRepository chatMessageRepository;
 	private final CategoryRepository categoryRepository;
 	private final ProductRepository productRepository;
 	private final ProductReviewRepository productReviewRepository;
@@ -260,11 +260,32 @@ public class KubermarketApplication implements CommandLineRunner {
 		}
 		// PRODUCT Data END
 
-		ChatRoom chatRoom= ChatRoom.builder()
-				.product(product)
-				.user(user2)
-				.build();
-		chatRoomRepository.save(chatRoom);
+		Product product7=new Product();
+		product7.setTitle("입생로랑 틴트");
+		product7.setPrice(10000);
+		product7.setContent("입생로랑 틴트");
+		product7.setCreateDate(LocalDateTime.now());
+		product7.setInterestCount(70);
+		product7.setStatus("판매중");
+		product7.setCategory(cate12);
+		product7.setUser(user6);
+		productRepository.save(product7);
+
+		for(int i=0;i<100;i++){
+			ChatRoom chatRoom= ChatRoom.builder()
+					.product(product)
+					.user(user2)
+					.build();
+			chatRoomRepository.save(chatRoom);
+		}
+
+		for(int i=0;i<50;i++){
+			ChatRoom chatRoom= ChatRoom.builder()
+					.product(product7)
+					.user(user2)
+					.build();
+			chatRoomRepository.save(chatRoom);
+		}
 
 		ChatRoom chatRoom2= ChatRoom.builder()
 				.product(product2)
@@ -277,6 +298,16 @@ public class KubermarketApplication implements CommandLineRunner {
 				.user(user6)
 				.build();
 		chatRoomRepository.save(chatRoom3);
+
+		for(int i=0;i<50;i++){
+			ChatMessage chatMessage= ChatMessage.builder()
+					.chatRoom(chatRoom3)
+					.createDate(LocalDateTime.now())
+					.senderType(i%2==1?true:false)
+					.message("안녕하세요"+i)
+					.build();
+			chatMessageRepository.save(chatMessage);
+		}
 
 	}
 

@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 
 @Slf4j
@@ -50,16 +51,32 @@ public class ProductService {
         return  products;
     }
 
-    @Cacheable(key = "#pageNum",value = "PopularProduct",cacheManager = "CacheManager")
+    //@Cacheable(key = "Popular",value = "PopularProduct",cacheManager = "CacheManager")
     public List<PopularProductDto> getPopularProducts(Integer pageNum) {
-        Pageable pageRequest = PageRequest.of(0,16*pageNum);
-        Page<Product> productList = productRepository.findByPopular(pageRequest);
         List<PopularProductDto> productDtoList= new ArrayList<>();
-        Integer count=0;
-        for(Product product: productList){
-            //ProductId와 채팅수 가져오기
-            productDtoList.add(this.convertEntityToDto(product,count+=10));
+        ValueOperations<String,Object> redisData = redisTemplate.opsForValue();
+        String Key="PopularProduct::Popular";
+        if(redisData.get(Key)==null){ //Cache가 안되었다면 Cache 처리하기
+            List<Product> productList = productRepository.findByPopular();
+            for(Product product: productList){ //ProductId와 채팅수 가져오기
+                productDtoList.add(this.convertPopularEntityToDto(product));
+            }
+            productDtoList.sort((o1, o2) -> ((o2.getInterestCount()+o2.getChatCount()) - (o1.getInterestCount()+o1.getChatCount())));
+            redisData.set(Key,productDtoList);
+            redisTemplate.expire(Key,5L, TimeUnit.MINUTES); //5분만다 캐시 갱신
+        }else{
+            log.info("getPopular_cache");
+            productDtoList = (List<PopularProductDto>) redisData.get(Key);
+            productDtoList.sort((o1, o2) -> ((o2.getInterestCount()+o2.getChatCount()) - (o1.getInterestCount()+o1.getChatCount())));
+            if(pageNum*16>productDtoList.size()) {
+                productDtoList = productDtoList.subList(0, productDtoList.size());
+            }else{
+                productDtoList = productDtoList.subList(0, pageNum*16);
+            }
         }
+//        Pageable pageRequest = PageRequest.of(0,16*pageNum);
+//        Page<Product> productList = productRepository.findByPopular(pageRequest);
+
 
         //productDtoList.sort((o1, o2) -> ((o2.getInterestCount()+o2.getChatCount()) - (o1.getInterestCount()+o1.getChatCount())));
 
@@ -73,38 +90,21 @@ public class ProductService {
 //            productDtoList.add(this.convertEntityToDto(product));
 //        }
     }
-    @Cacheable(key = "#category.concat(#pageNum)",value = "CategoryProduct",cacheManager = "CacheManager")
+
+    //@Cacheable(key = "#category.concat(#pageNum)",value = "CategoryProduct",cacheManager = "CacheManager")
     public List<ProductDto> getCategoryProducts(String category, Integer pageNum) {
-        Pageable pageRequest = PageRequest.of(0,16*pageNum);
-        Page<Product> products= productRepository.findByCategory(category,pageRequest);
         List<ProductDto> productDtoList= new ArrayList<>();
-        for(Product product: products){
-            productDtoList.add(this.convertEntityToDto(product));
-        }
-        return  productDtoList;
-    }
-    //페이지 단위로 캐쉬를 적용했지만 새로운 데이터가 추가됬을때 어떻게 변경 해야할지 잘모르겠다.
-    //일일이 캐쉬를 들어가면서 확인하는 것은 너무 비효율적인 방식이라고 생각이 돼서 방법을 바꿔야한다고 생각이 되었다.
-    //전체 상품을 적재 시키고 거기서 추가시키는 방식으로 한다
-    //pageNum을 이용해서 한정적으로 데이터를 보여주는 방식으로 바뀐다.
-    //@Cacheable(key = "#address",value = "AddressProduct",condition = #pageNum < 1600 ,cacheManager = "CacheManager")
-    public  List<ProductDto> getAddressProducts(String address,Integer pageNum) {
-        List<ProductDto> productDtoList=new ArrayList<>();
         ValueOperations<String,Object> redisData = redisTemplate.opsForValue();
-        ZSetOperations<String,Object> redisList= redisTemplate.opsForZSet();
-        String Key=address;
-        //log.info(String.valueOf(redisData.size(Key)));
+        String Key= "CategoryProduct::"+category;
         if(redisData.get(Key)==null) { //전체 데이터 담기
-            //Pageable pageRequest = PageRequest.of(0,16*pageNum);
-            //Page<Product> products= productRepository.findByAddress(address,pageRequest);
-            List<Product> products=productRepository.findByAddress(address);
-            int count=0;
+            List<Product> products=productRepository.findByAddress(category);
             for(Product product: products){
                 productDtoList.add(this.convertEntityToDto(product));
             }
-           redisData.set(Key,productDtoList);
+            redisData.set(Key,productDtoList);
+            redisTemplate.expire(Key,60L, TimeUnit.MINUTES);
         }else{
-            log.info("getKeyword_cache");
+            log.info("getCategory_cache");
             productDtoList = (List<ProductDto>) redisData.get(Key);
             productDtoList.sort(new Comparator<ProductDto>() {
                 @Override
@@ -117,7 +117,49 @@ public class ProductService {
             }else{
                 productDtoList = productDtoList.subList(0, pageNum*16);
             }
-            //productDtoList= (List<ProductDto>) redisData.get(Key);
+        }
+        return  productDtoList;
+//        Pageable pageRequest = PageRequest.of(0,16*pageNum);
+//        Page<Product> products= productRepository.findByCategory(category,pageRequest);
+//        for(Product product: products){
+//            productDtoList.add(this.convertEntityToDto(product));
+//        }
+//        return  productDtoList;
+    }
+
+    //페이지 단위로 캐쉬를 적용했지만 새로운 데이터가 추가됬을때 어떻게 변경 해야할지 잘모르겠다.
+    //일일이 캐쉬를 들어가면서 확인하는 것은 너무 비효율적인 방식이라고 생각이 돼서 방법을 바꿔야한다고 생각이 되었다.
+    //전체 상품을 적재 시키고 거기서 추가시키는 방식으로 한다
+    //pageNum을 이용해서 한정적으로 데이터를 보여주는 방식으로 바뀐다.
+    //@Cacheable(key = "#address",value = "AddressProduct",condition = #pageNum < 1600 ,cacheManager = "CacheManager")
+    public  List<ProductDto> getAddressProducts(String address,Integer pageNum) {
+        List<ProductDto> productDtoList=new ArrayList<>();
+        ValueOperations<String,Object> redisData = redisTemplate.opsForValue();
+        String Key= "AddressProduct::"+address;
+        //log.info(String.valueOf(redisData.size(Key)));
+        if(redisData.get(Key)==null) { //전체 데이터 담기
+            //Pageable pageRequest = PageRequest.of(0,16*pageNum);
+            //Page<Product> products= productRepository.findByAddress(address,pageRequest);
+            List<Product> products=productRepository.findByAddress(address);
+            for(Product product: products){
+                productDtoList.add(this.convertEntityToDto(product));
+            }
+           redisData.set(Key,productDtoList);
+            redisTemplate.expire(Key,60L, TimeUnit.MINUTES);
+        }else{
+            log.info("getAddress_cache");
+            productDtoList = (List<ProductDto>) redisData.get(Key);
+            productDtoList.sort(new Comparator<ProductDto>() {
+                @Override
+                public int compare(ProductDto o1, ProductDto o2) {
+                    return o2.getCreateDate().compareTo(o1.getCreateDate());
+                }
+            });
+            if(pageNum*16>productDtoList.size()) {
+                productDtoList = productDtoList.subList(0, productDtoList.size());
+            }else{
+                productDtoList = productDtoList.subList(0, pageNum*16);
+            }
         }
         return  productDtoList;
     }
@@ -131,7 +173,7 @@ public class ProductService {
     // productDtoList= (List<ProductDto>) redisData.get(Key);
     //}
 
-    @Cacheable(key = "#keyword.concat(#pageNum)",value = "KeywordProduct",cacheManager = "CacheManager")
+    //@Cacheable(key = "#keyword.concat(#pageNum)",value = "KeywordProduct",cacheManager = "CacheManager")
     public List<ProductDto> getKeywordProducts(String keyword,Integer pageNum) {
         List<ProductDto> productDtoList = new ArrayList<>();
         //ValueOperations<String,Object> redisData = redisTemplate.opsForValue();
@@ -171,7 +213,7 @@ public class ProductService {
                 .categoryName(product.getCategory().getName())
                 .build();
     }
-    private PopularProductDto convertEntityToDto(Product product,Integer count) {
+    private PopularProductDto convertPopularEntityToDto(Product product) {
         return PopularProductDto.builder()
                 .id(product.getId())
                 .title(product.getTitle())
@@ -183,7 +225,7 @@ public class ProductService {
                 .status(product.getStatus())
                 .address1(product.getUser().getAddress1())
                 .address2(product.getUser().getAddress2())
-                .chatCount(count)
+                .chatCount(product.getChatRooms().size())
                 .nickName(product.getUser().getNickName())
                 .categoryName(product.getCategory().getName())
                 .build();
@@ -235,8 +277,8 @@ public class ProductService {
         product.setProductImages(productImageList);
         log.info(String.valueOf(productImageList));
         productRepository.save(product);
-        CacheService cacheSevice=new CacheService();
-        cacheSevice.deleteProductCache(user.getAddress1(), categoryName);
+        CacheService cacheService=new CacheService();
+        cacheService.deleteProductCache(user.getAddress1(), categoryName);
         return product;
     }
 
