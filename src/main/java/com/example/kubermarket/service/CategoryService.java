@@ -2,27 +2,26 @@ package com.example.kubermarket.service;
 
 import com.example.kubermarket.domain.Category;
 import com.example.kubermarket.domain.CategoryRepository;
-import com.example.kubermarket.domain.Product;
 import com.example.kubermarket.dto.CategoryDto;
-import com.example.kubermarket.dto.ProductDto;
-import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
-@Service
-@RequiredArgsConstructor
+@Transactional
 public class CategoryService {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final CategoryRepository categoryRepository;
+
+    @Autowired
+    public CategoryService(RedisTemplate<String, Object> redisTemplate, CategoryRepository categoryRepository) {
+        this.redisTemplate = redisTemplate;
+        this.categoryRepository = categoryRepository;
+    }
 
     //@Cacheable(key = "CategoryList" , value = "Category",cacheManager = "CacheManager")
     public List<CategoryDto> getCategories(){
