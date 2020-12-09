@@ -29,7 +29,6 @@ public class CacheConfig extends JCacheConfigurerSupport {
     @Autowired
     RedisConnectionFactory connectionFactory;
 
-
     @Bean
     public RedisCacheManager CacheManager() {
         RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
@@ -40,5 +39,4 @@ public class CacheConfig extends JCacheConfigurerSupport {
         RedisCacheManager redisCacheManager = RedisCacheManager.RedisCacheManagerBuilder.fromConnectionFactory(connectionFactory).cacheDefaults(redisCacheConfiguration).build();
         return redisCacheManager;
     }
-
 }

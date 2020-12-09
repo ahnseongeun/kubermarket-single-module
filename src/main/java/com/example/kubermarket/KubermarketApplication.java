@@ -35,55 +35,55 @@ public class KubermarketApplication implements CommandLineRunner {
 
 		// Category Date START
 		Category cate1 =new Category();
-		cate1.setName("디지털/가전");
+		cate1.updateInformation("디지털/가전");
 		categoryRepository.save(cate1);
 
 		Category cate2 =new Category();
-		cate2.setName("유아/유아도서");
+		cate2.updateInformation("유아/유아도서");
 		categoryRepository.save(cate2);
 
 		Category cate3 =new Category();
-		cate3.setName("스포츠/레저");
+		cate3.updateInformation("스포츠/레저");
 		categoryRepository.save(cate3);
 
 		Category cate4 =new Category();
-		cate4.setName("여성의류");
+		cate4.updateInformation("여성의류");
 		categoryRepository.save(cate4);
 
 		Category cate5 =new Category();
-		cate5.setName("게임/취미");
+		cate5.updateInformation("게임/취미");
 		categoryRepository.save(cate5);
 
 		Category cate6 =new Category();
-		cate6.setName("반려동물용품");
+		cate6.updateInformation("반려동물용품");
 		categoryRepository.save(cate6);
 
 		Category cate7 =new Category();
-		cate7.setName("기타 중고물품");
+		cate7.updateInformation("기타 중고물품");
 		categoryRepository.save(cate7);
 
 		Category cate8 =new Category();
-		cate8.setName("가구/인테리어");
+		cate8.updateInformation("가구/인테리어");
 		categoryRepository.save(cate8);
 
 		Category cate9 =new Category();
-		cate9.setName("생활/가공식품");
+		cate9.updateInformation("생활/가공식품");
 		categoryRepository.save(cate9);
 
 		Category cate10 =new Category();
-		cate10.setName("여성잡화");
+		cate10.updateInformation("여성잡화");
 		categoryRepository.save(cate10);
 
 		Category cate11 =new Category();
-		cate11.setName("남성패션/잡화");
+		cate11.updateInformation("남성패션/잡화");
 		categoryRepository.save(cate11);
 
 		Category cate12 =new Category();
-		cate12.setName("뷰티/미용");
+		cate12.updateInformation("뷰티/미용");
 		categoryRepository.save(cate12);
 
 		Category cate13 =new Category();
-		cate13.setName("도서/티켓/음반");
+		cate13.updateInformation("도서/티켓/음반");
 		categoryRepository.save(cate13);
 		// Category Data END
 

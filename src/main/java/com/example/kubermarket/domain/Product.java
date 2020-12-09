@@ -60,24 +60,24 @@ public class Product implements Serializable {
     private Integer interestCount;
 
     @OneToMany(mappedBy = "product", fetch=FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonManagedReference("a")
+    @JsonManagedReference("product_productImage")
     private List<ProductImage> productImages = new ArrayList<>();
 
     @OneToOne(mappedBy = "product", fetch=FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonManagedReference("b")
+    @JsonManagedReference("product_productReview")
     private ProductReview productReview;
 
     @OneToMany(mappedBy = "product", fetch=FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonManagedReference("p")
+    @JsonManagedReference("product_chatRoom")
     private List<ChatRoom> chatRooms = new ArrayList<>();
 
     @ManyToOne
-    @JsonBackReference("c")
+    @JsonBackReference("category_product")
     @JoinColumn(name="category_id")
     private Category category;
 
     @ManyToOne
-    @JsonBackReference("d")
+    @JsonBackReference("product_user")
     @JoinColumn(name="user_id")
     private User user;
 

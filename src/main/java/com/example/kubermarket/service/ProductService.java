@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.keyvalue.core.KeyValueOperations;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -63,7 +64,7 @@ public class ProductService {
             }
             productDtoList.sort((o1, o2) -> ((o2.getInterestCount()+o2.getChatCount()) - (o1.getInterestCount()+o1.getChatCount())));
             redisData.set(Key,productDtoList);
-            redisTemplate.expire(Key,5L, TimeUnit.MINUTES); //5분만다 캐시 갱신
+            redisTemplate.expire(Key,5L, TimeUnit.MINUTES); //5분마다 캐시 갱신
         }else{
             log.info("getPopular_cache");
             productDtoList = (List<PopularProductDto>) redisData.get(Key);
@@ -176,10 +177,10 @@ public class ProductService {
     //@Cacheable(key = "#keyword.concat(#pageNum)",value = "KeywordProduct",cacheManager = "CacheManager")
     public List<ProductDto> getKeywordProducts(String keyword,Integer pageNum) {
         List<ProductDto> productDtoList = new ArrayList<>();
-        //ValueOperations<String,Object> redisData = redisTemplate.opsForValue();
-        //String Key=keyword+"::"+pageNum;
+        String Key=keyword;
+        ValueOperations<String,Object> redisData = redisTemplate.opsForValue();
         //log.info(String.valueOf(redisData.get(Key)));
-        //if(redisData.get(Key)==null) {
+        if(redisData.get(Key)==null) {
             //JPA에서 limit을 사용하는 대신에 pageRequest를 사용해야 한다.
             Pageable pageRequest = PageRequest.of(0, 16 * pageNum);
             Page<Product> products = productRepository.findByKeyword('%' + keyword + '%', pageRequest);
@@ -188,14 +189,20 @@ public class ProductService {
             }
             log.info("getKeywordProducts");
             //redisData.set(Key, productDtoList);
-        //}else{
+        }else{
           //  log.info("getKeyword_cache");
-           // productDtoList= (List<ProductDto>) redisData.get(Key);
-        //}
+            productDtoList= (List<ProductDto>) redisData.get(Key);
+        }
        // System.out.println(redisData.get(Key));
         return  productDtoList;
     }
 
+    /**
+     *
+     * @param product
+     * @return
+     * 사용목적 -
+     */
     private ProductDto convertEntityToDto(Product product) {
         ProductDto productDto= new ProductDto();
         return productDto.builder()

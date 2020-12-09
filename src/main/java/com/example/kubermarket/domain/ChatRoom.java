@@ -31,16 +31,16 @@ public class ChatRoom {
 //    private User seller;
 
     @ManyToOne
-    @JsonBackReference("p")
+    @JsonBackReference("product_chatRoom")
     @JoinColumn(name="seller_id")
     private Product product;
 
     @ManyToOne
-    @JsonBackReference("u")
+    @JsonBackReference("user_chatRoom")
     @JoinColumn(name="buyer_id")
     private User user;
 
     @OneToMany(mappedBy = "chatRoom", fetch=FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonManagedReference("r")
+    @JsonManagedReference("chatRoom_chatMessage")
     private List<ChatMessage> chatMessages = new ArrayList<>();
 }

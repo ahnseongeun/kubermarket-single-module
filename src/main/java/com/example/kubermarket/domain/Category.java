@@ -9,14 +9,12 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@NoArgsConstructor //접근 권한이 굳이 public일 필요가 없고, 최소한의 기본생성자는 필요하다.
+@AllArgsConstructor
 @Accessors(chain = true)
 @Builder
 @Entity
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @ToString(exclude = "products")
 @Table(name = "category")
 public class Category {
@@ -26,13 +24,14 @@ public class Category {
     private Long id;
 
     @NotNull
+    @Column
     private String name;
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonManagedReference("c")
+    @JsonManagedReference("category_product")
     private List<Product> products = new ArrayList<>();
 
-    public void updateInfomation(String name) {
+    public void updateInformation(String name) {
         this.name=name;
     }
 

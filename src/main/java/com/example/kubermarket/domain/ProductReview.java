@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 @Accessors(chain = true)
 @Entity
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -32,13 +33,13 @@ public class ProductReview {
 
     @NotNull
     @OneToOne
-    @JsonBackReference("b")
+    @JsonBackReference("product_productReview")
     @JoinColumn(name="product_id")
     private Product product;
 
     @NotNull
     @ManyToOne
-    @JsonBackReference("e")
+    @JsonBackReference("user_productReview")
     @JoinColumn(name="user_id")
     private User user;
 

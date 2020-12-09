@@ -1,22 +1,17 @@
 package com.example.kubermarket.controller;
 
-import com.example.kubermarket.domain.User;
-import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.persistence.GeneratedValue;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-@Controller
 @Slf4j
+@Controller
 public class HelloController {
 
     //http 통신은 request 와 response를 한번만 통신하고 통신을 끊어 버리기 때문에
@@ -37,6 +32,11 @@ public class HelloController {
         } catch (IOException ex) {
 
         }
+    }
+
+    @RequestMapping(value = "/hello",method = RequestMethod.GET)
+    public String Welcome() throws IOException {
+        return "hello";
     }
 
 }

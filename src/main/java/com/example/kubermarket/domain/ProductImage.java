@@ -27,7 +27,7 @@ public class ProductImage implements Serializable {
 
     @ManyToOne
     @JoinColumn(name="product_id")
-    @JsonBackReference("a")
+    @JsonBackReference("product_productImage")
     private Product product;
 
     @NotNull
