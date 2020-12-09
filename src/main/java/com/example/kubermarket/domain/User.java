@@ -56,7 +56,7 @@ public class User implements Serializable {
     private List<Product> products = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", fetch=FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonManagedReference("product_productReview")
+    @JsonManagedReference("user_productReview")
     private List<ProductReview> productReviews = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", fetch=FetchType.LAZY, cascade = CascadeType.ALL)

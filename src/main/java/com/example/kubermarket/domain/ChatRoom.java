@@ -18,7 +18,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString(exclude = "product,user,chatMessages")
+@ToString(exclude = {"product,user,chatMessages"})
 @Table(name = "chatRoom")
 public class ChatRoom {
 
